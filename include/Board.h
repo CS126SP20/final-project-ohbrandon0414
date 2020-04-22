@@ -11,12 +11,11 @@ class Board {
  public:
   b2Body* m_body;
   Board(b2World* world);
-  b2Body* getBody() {return m_body;}
-  b2Fixture* getFixture() {return fixture;}
   b2Vec2 getLeftTopCorner() {return {kx, ky};}
   b2Vec2 getRightBottomCorner() {return {kx + kWidth, ky + kHeight * 2};}
   float getX() {return m_body->GetPosition().x;}
   float getY() {return m_body->GetPosition().y;}
+  void Display();
 
  private:
   float kx = 0;

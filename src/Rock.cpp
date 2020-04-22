@@ -6,10 +6,13 @@
 #include "Rock.h"
 #include <glm/fwd.hpp>
 #include <Box2D/Box2D.h>
+#include <cinder/app/App.h>
+#include <cinder/gl/gl.h>
 
-Rock::Rock(b2World* world, float radius, b2Vec2 loc) {
+Rock::Rock(b2World* world, float radius, b2Vec2 loc, bool red) {
   m_body = nullptr;
   m_radius = radius;
+  is_red = red;
 
   //set up dynamic body, store in class variable
   b2BodyDef myBodyDef;
@@ -24,9 +27,17 @@ Rock::Rock(b2World* world, float radius, b2Vec2 loc) {
   circleShape.m_radius = m_radius; //use class variable
   b2FixtureDef myFixtureDef;
   myFixtureDef.shape = &circleShape;
-  myFixtureDef.density = 1;
-  myFixtureDef.friction = 0.3f;
+  myFixtureDef.density = 5;
   myFixtureDef.restitution = 0.5f;
   m_body->CreateFixture(&myFixtureDef);
 }
-
+void Rock::Display() {
+  cinder::gl::color(0,0,1);
+  if (is_red) {
+    cinder::gl::color(1,0,0);
+  }
+  cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius);
+  // middle part
+  cinder::gl::color(1,1,1);
+  cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius / 2);
+}

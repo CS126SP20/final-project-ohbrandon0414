@@ -14,10 +14,11 @@ class MyApp : public cinder::app::App {
   void setup() override;
   void update() override;
   void draw() override;
-  void drawRock();
-  void drawBoard();
   void keyDown(cinder::app::KeyEvent) override;
   void mouseDown(cinder::app::MouseEvent) override;
+
+ private:
+  int kRadius = 25;
 };
 
 }  // namespace myapp

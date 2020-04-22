@@ -8,17 +8,20 @@
 #include <Box2D/Box2D.h>
 
 #include <glm/fwd.hpp>
+#include <cinder/app/App.h>
+#include <cinder/gl/gl.h>
 
 class Rock {
    public:
-    Rock(b2World* world, float radius, b2Vec2 loc);
-    b2Body* getBody() {return m_body;}
-    float getRadius() {return m_radius;}
+    Rock(b2World* world, float radius, b2Vec2 loc, bool red);
+    b2Body* GetBody() {return m_body;}
+    float GetRadius() {return m_radius;}
+    bool IsRed() {return is_red;}
+    void Display();
 
    private:
-    b2Vec2 getLateralVelocity();
-    b2Vec2 getForwardVelocity();
     b2Body* m_body;
+    bool is_red;
     float m_radius;
 };
 

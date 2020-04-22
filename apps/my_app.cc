@@ -26,13 +26,16 @@ void MyApp::setup() {
   b2Vec2 gravity(0.0f, 0);
   m_world = new b2World(gravity);
 
-  rock = new Rock(m_world, 30, {100, 500});
+  rock = new Rock(m_world, kRadius, {100, 450},true);
+  Rock* stat = new Rock(m_world, kRadius, {1000, 440}, false);
+  rocks.push_back(stat);
+  rocks.push_back(rock);
   board = new Board(m_world);
 }
 
 void MyApp::update() {
    for( int i = 0; i < 10; ++i ){
-     m_world->Step( 1 / 30.0f, 10, 10 );
+     m_world->Step( 1 / 100.0f, 10, 10 );
    }
 }
 
@@ -40,31 +43,21 @@ void MyApp::draw() {
   cinder::gl::enableAlphaBlending();
   cinder::gl::clear();
 
-  drawBoard();
-  drawRock();
-}
+  board->Display();
+  for(Rock* temp: rocks) {
+    temp->Display();
+  }}
 
 
 void MyApp::keyDown(KeyEvent event) {
   switch (event.getCode()) {
     case KeyEvent::KEY_UP:
-      rock->getBody()->ApplyLinearImpulse({50, 10},
-                                          rock->getBody()->GetWorldCenter());
+      rock->GetBody()->ApplyLinearImpulse({50, 10},
+                                          rock->GetBody()->GetWorldCenter());
   }
 }
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
-  rock->getBody()->ApplyLinearImpulse({500000, 0},
-                              rock->getBody()->GetWorldCenter());
-}
-void MyApp::drawRock() {
-  cinder::gl::color(1, 0.5, 1);
-  for(Rock* temp: rocks) {
-    cinder::gl::drawSolidCircle({temp->getBody()->GetPosition().x, temp->getBody()->GetPosition().y}, temp->getRadius());
-  }
-}
-void MyApp::drawBoard() {
-  cinder::gl::color(1, 1, 1);
-  cinder::gl::drawSolidRect(cinder::Rectf{board->getLeftTopCorner().x, board->getLeftTopCorner().y,
-                                          board->getRightBottomCorner().x, board->getRightBottomCorner().y});
+  rock->GetBody()->ApplyLinearImpulse({9999999, 0},
+                                      rock->GetBody()->GetWorldCenter());
 }
 }  // namespace myapp

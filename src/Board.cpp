@@ -4,6 +4,9 @@
 
 #include "Board.h"
 
+#include <cinder/gl/gl.h>
+#include <cinder/gl/wrapper.h>
+
 Board::Board(b2World *world) {
   //a static body
   b2BodyDef myBodyDef;
@@ -28,6 +31,7 @@ Board::Board(b2World *world) {
   polygonShape.SetAsBox( 1, kHeight, b2Vec2(kx + kWidth, ky + kHeight), 0);//right wall
   staticBody->CreateFixture(&myFixtureDef);
 }
-
-
-
+void Board::Display() {
+  cinder::gl::color(0.8, 0.8, 0.8);
+  cinder::gl::drawSolidRect(cinder::Rectf{kx, ky,kx + kWidth, ky + kHeight * 2});
+}
