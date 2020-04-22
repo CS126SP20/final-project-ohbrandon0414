@@ -14,7 +14,7 @@
 class Rock {
    public:
     /// constructor to set up the basics for each rock
-    Rock(b2World* world, float radius, b2Vec2 loc, bool red);
+    Rock(b2World* world, b2Vec2 loc, bool red);
 
     /// gets the physical body of the rock.
     b2Body* GetBody() {return m_body;}
@@ -42,7 +42,7 @@ class Rock {
     b2Body* m_body;
     bool is_red;
     // radius of the rock
-    float m_radius;
+    float m_radius = 25;
     bool is_launched;
 };
 

@@ -8,7 +8,9 @@ engine::engine(b2World* input) {
   world = input;
   turn_is_over = false;
   is_launched = false;
-  Rock* rock = new Rock(world, 25, {100.0f, 450.0f}, true);
+  is_red_turn = true;
+  Rock* rock = new Rock(world, {100.0f, 450.0f}, is_red_turn);
+  is_red_turn = false;
   CreateRock(rock);
 }
 
@@ -24,9 +26,15 @@ void engine::SetLaunched(bool input) {
 
 void engine::Step() {
   if(is_launched && current_rock->IsStopped()) {
-    Rock* rock = new Rock(world, 25, {100.0f, 450.0f}, false);
+    Rock* rock = new Rock(world, {100.0f, 450.0f}, is_red_turn);
     CreateRock(rock);
     is_launched = false;
+
+    if(is_red_turn) {
+      is_red_turn = false;
+    } else {
+      is_red_turn = true;
+    }
   }
 }
 

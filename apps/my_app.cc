@@ -16,7 +16,8 @@ namespace myapp {
 
 using cinder::app::KeyEvent;
 
-int num;
+int power;
+int selected_power;
 b2World* m_world;
 Board* board;
 engine* _engine;
@@ -48,10 +49,13 @@ void MyApp::draw() {
   cinder::gl::clear();
 
   // takes care of the power gage.
-  num = static_cast<int>((ci::app::getElapsedSeconds()) * 9.9);
-  num = num % 10;
-  std::string str = std::to_string(num);
+  power = static_cast<int>((ci::app::getElapsedSeconds()) * 9.9);
+  power = power % 10;
+  std::string str = std::to_string(power + 1);
   PrintText(str, {500, 500}, {100,70});
+  // prints out the selected power.
+  std::string str2 = std::to_string(selected_power + 1);
+  PrintText(str2, {500, 500}, {200,70});
 
   // displays the board and all the rocks
   board->Display();
@@ -65,9 +69,10 @@ void MyApp::keyDown(KeyEvent event) {
 
 /// mouse click controls the power gage.
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
-
-  currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(num * 9999999), 0},
+  selected_power = power;
+  currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>((power + 1) * 9999999) , 0},
                                       currentRock->GetBody()->GetWorldCenter());
+//  std::string str = std::to_string(power);
   _engine->SetLaunched(true);
 }
 

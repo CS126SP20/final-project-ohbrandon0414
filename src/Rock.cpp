@@ -9,9 +9,8 @@
 #include <cinder/app/App.h>
 #include <cinder/gl/gl.h>
 
-Rock::Rock(b2World* world, float radius, b2Vec2 loc, bool red) {
+Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   m_body = nullptr;
-  m_radius = radius;
   is_red = red;
 
   //set up dynamic body, store in class variable
@@ -32,18 +31,19 @@ Rock::Rock(b2World* world, float radius, b2Vec2 loc, bool red) {
   m_body->CreateFixture(&myFixtureDef);
 }
 void Rock::Display() {
+  // outter part
+  cinder::gl::color(0.5,0.5,0.5);
+  cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius);
+
   cinder::gl::color(0,0,1);
   if (is_red) {
     cinder::gl::color(1,0,0);
   }
-  cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius);
-  // middle part
-  cinder::gl::color(1,1,1);
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius / 2);
 }
 b2Vec2 Rock::GetLocation() {
   return m_body->GetLocalCenter();
 }
 bool Rock::IsStopped() {
-  return m_body->GetLinearVelocity() == b2Vec2_zero;
+  return m_body->GetLinearVelocity().x <= 5;
 }
