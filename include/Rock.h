@@ -18,11 +18,16 @@ class Rock {
     float GetRadius() {return m_radius;}
     bool IsRed() {return is_red;}
     void Display();
+    b2Vec2 GetLocation();
+    bool IsLaunched() {return is_launched;}
+    bool IsStopped();
+
 
    private:
     b2Body* m_body;
     bool is_red;
     float m_radius;
+    bool is_launched;
 };
 
 #endif  // FINALPROJECT_ROCK_H

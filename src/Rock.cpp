@@ -41,3 +41,9 @@ void Rock::Display() {
   cinder::gl::color(1,1,1);
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius / 2);
 }
+b2Vec2 Rock::GetLocation() {
+  return m_body->GetLocalCenter();
+}
+bool Rock::IsStopped() {
+  return m_body->GetLinearVelocity() == b2Vec2_zero;
+}
