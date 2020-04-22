@@ -13,19 +13,35 @@
 
 class Rock {
    public:
+    /// constructor to set up the basics for each rock
     Rock(b2World* world, float radius, b2Vec2 loc, bool red);
+
+    /// gets the physical body of the rock.
     b2Body* GetBody() {return m_body;}
+
+    /// gets the radius of the rock.
     float GetRadius() {return m_radius;}
+
+    /// checks if the rock is on the red team.
     bool IsRed() {return is_red;}
+
+    /// draws the rock on the screen.
     void Display();
+
+    /// gets the location of the rock.
     b2Vec2 GetLocation();
+
+    /// checks if the rock was already launched
     bool IsLaunched() {return is_launched;}
+
+    /// checks if the rocks completely stopped.
     bool IsStopped();
 
 
    private:
     b2Body* m_body;
     bool is_red;
+    // radius of the rock
     float m_radius;
     bool is_launched;
 };

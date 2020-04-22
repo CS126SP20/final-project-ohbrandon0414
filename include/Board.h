@@ -9,12 +9,13 @@
 #include <vector>
 class Board {
  public:
-  b2Body* m_body;
   Board(b2World* world);
+
+  /// gets the left top corner of the board.
   b2Vec2 getLeftTopCorner() {return {kx, ky};}
+
+  /// gets the bottom right corner of the board.
   b2Vec2 getRightBottomCorner() {return {kx + kWidth, ky + kHeight * 2};}
-  float getX() {return m_body->GetPosition().x;}
-  float getY() {return m_body->GetPosition().y;}
   void Display();
 
  private:
@@ -22,6 +23,5 @@ class Board {
   float ky = 200;
   float kWidth = 1800;
   float kHeight = 200;
-  b2Fixture* fixture = nullptr;
 };
 #endif  // FINALPROJECT_BOARD_H

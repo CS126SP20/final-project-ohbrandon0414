@@ -9,12 +9,23 @@
 
 class engine {
  public:
-  engine(b2World* input);
+  explicit engine(b2World* input);
+
+  /// creates a rock with in the game
   void CreateRock(Rock* rock);
+
+  /// gets the list of the rocks in a vector form
   std::vector<Rock*> GetRocks(){return rocks;}
+
+  /// resets the game when its over
   void Reset();
+
+  /// a method to execute to the next step of the game
   void Step();
+
+  /// a setter for the mouse click
   void SetLaunched(bool input);
+
   Rock* GetCurrentRock() {return current_rock;}
 
  private:
