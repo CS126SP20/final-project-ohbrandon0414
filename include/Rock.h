@@ -11,21 +11,15 @@
 
 class Rock {
    public:
-    b2Body* m_body;
-    float m_radius;
-    Rock(b2World* world, float radius);
+    Rock(b2World* world, float radius, b2Vec2 loc);
     b2Body* getBody() {return m_body;}
-    b2Vec2 getLateralVelocity();
-    b2Vec2 getForwardVelocity();
-
-  void updateFriction();
-    float getX() {return m_body->GetPosition().x;}
-    float getY() {return m_body->GetPosition().y;}
+    float getRadius() {return m_radius;}
 
    private:
-    b2Fixture* fixture = nullptr;
-
-
+    b2Vec2 getLateralVelocity();
+    b2Vec2 getForwardVelocity();
+    b2Body* m_body;
+    float m_radius;
 };
 
 #endif  // FINALPROJECT_ROCK_H
