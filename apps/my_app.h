@@ -19,6 +19,8 @@ class MyApp : public cinder::app::App {
 
  private:
   int kRadius = 25;
+  void PrintText(const std::string& text, const cinder::ivec2& size,
+                 const cinder::vec2& loc);
 };
 
 }  // namespace myapp

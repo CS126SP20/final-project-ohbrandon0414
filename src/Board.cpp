@@ -32,6 +32,6 @@ Board::Board(b2World *world) {
   staticBody->CreateFixture(&myFixtureDef);
 }
 void Board::Display() {
-  cinder::gl::color(0.8, 0.8, 0.8);
+  cinder::gl::color(0.9, 0.9, 0.9);
   cinder::gl::drawSolidRect(cinder::Rectf{kx, ky,kx + kWidth, ky + kHeight * 2});
 }
