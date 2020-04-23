@@ -24,9 +24,18 @@ class engine {
   void Step();
 
   /// a setter for the mouse click
-  void SetLaunched(bool input);
+  void SetIsLaunched(bool input);
+
+  bool GetIsLaunched() {return is_launched;}
+
+  void SetIsYPointSelected(bool input);
+
+  bool GetIsYPointSelected() {return is_y_point_selected;}
+
+  void SetYPoint(int input);
 
   Rock* GetCurrentRock() {return current_rock;}
+
 
  private:
   std::vector<Rock*> rocks;
@@ -35,6 +44,8 @@ class engine {
   bool is_red_turn;
   Rock* current_rock;
   b2World* world;
+  int y_point;
+  bool is_y_point_selected;
 };
 
 #endif  // FINALPROJECT_ENGINE_H

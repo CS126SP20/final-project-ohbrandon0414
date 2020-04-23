@@ -16,7 +16,7 @@ Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   //set up dynamic body, store in class variable
   b2BodyDef myBodyDef;
   myBodyDef.type = b2_dynamicBody;
-  myBodyDef.linearDamping = 0.1f;
+  myBodyDef.linearDamping = 0.07f;
   myBodyDef.position.Set(loc.x, loc.y);
   m_body = world->CreateBody(&myBodyDef);
 
@@ -35,7 +35,7 @@ void Rock::Display() {
   cinder::gl::color(0.5,0.5,0.5);
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius);
 
-  cinder::gl::color(0,0,1);
+  cinder::gl::color(1,1,0);
   if (is_red) {
     cinder::gl::color(1,0,0);
   }

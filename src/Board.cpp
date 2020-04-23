@@ -4,7 +4,7 @@
 
 #include "Board.h"
 
-#include <cinder/gl/gl.h>
+#include <engine.h>
 #include <cinder/gl/wrapper.h>
 
 Board::Board(b2World *world) {
@@ -34,4 +34,19 @@ Board::Board(b2World *world) {
 void Board::Display() {
   cinder::gl::color(0.9f, 0.9f, 0.9f);
   cinder::gl::drawSolidRect(cinder::Rectf{kx, ky,kx + kWidth, ky + kHeight * 2});
+
+  cinder::gl::color(1,0,0);
+  cinder::gl::drawSolidRect(cinder::Rectf{100, 200, 125, 600});
+
+  cinder::gl::color(0,0,1);
+  cinder::gl::drawSolidCircle(tee, 150);
+
+  cinder::gl::color(1,1,1);
+  cinder::gl::drawSolidCircle(tee, 100);
+
+  cinder::gl::color(0.9,0,0);
+  cinder::gl::drawSolidCircle(tee, 50);
+
+  cinder::gl::color(1,1,1);
+  cinder::gl::drawSolidCircle(tee, 20);
 }
