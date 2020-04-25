@@ -30,6 +30,7 @@ Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   myFixtureDef.restitution = 0.5f;
   m_body->CreateFixture(&myFixtureDef);
 }
+
 void Rock::Display() {
   // outter part
   cinder::gl::color(0.5,0.5,0.5);
@@ -45,5 +46,11 @@ b2Vec2 Rock::GetLocation() {
   return m_body->GetLocalCenter();
 }
 bool Rock::IsStopped() {
-  return m_body->GetLinearVelocity().x <= 5;
+  return m_body->GetLinearVelocity().x <= 3;
+}
+cinder::vec2 Rock::GetPosition() {
+  return {m_body->GetPosition().x, m_body->GetPosition().y};
+}
+Rock::~Rock() {
+  m_body->GetWorld()->DestroyBody(m_body);
 }

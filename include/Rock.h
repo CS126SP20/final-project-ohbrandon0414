@@ -37,6 +37,10 @@ class Rock {
     /// checks if the rocks completely stopped.
     bool IsStopped();
 
+    cinder::vec2 GetPosition();
+
+    ~Rock();
+
 
    private:
     b2Body* m_body;

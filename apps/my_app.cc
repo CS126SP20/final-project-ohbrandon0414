@@ -2,7 +2,6 @@
 
 #include "my_app.h"
 
-#include <cinder/app/App.h>
 #include <cinder/gl/gl.h>
 #include <Box2D/Box2D.h>
 #include <ObjectArray.h>
@@ -37,11 +36,7 @@ void MyApp::setup() {
 
 void MyApp::update() {
   engine_->Step();
-
-  y_position = static_cast<int>((ci::app::getElapsedSeconds()) * 300);
-  y_position = y_position % 350;
-  y_position += 230;
-
+  UpdateAttributes();
   // updates the current rock with in this file
   currentRock = engine_->GetCurrentRock();
 
@@ -56,23 +51,7 @@ void MyApp::draw() {
 
   board->Display();
 
-
-  // takes care of the power gage.
-  power = static_cast<int>((ci::app::getElapsedSeconds()) * 3);
-  power = power % 5;
-
-  if (should_show_placement) {
-    cinder::gl::color(0,0,0);
-    cinder::gl::drawSolidCircle({50, y_position}, 25);
-  }
-  if (!engine_->GetIsLaunched()) {
-    std::string str = std::to_string(power + 1);
-    PrintText(str, {500, 500}, {100,70});
-  } else {
-    // prints out the selected power.
-    std::string str2 = std::to_string(selected_power + 1);
-    PrintText(str2, {500, 500}, {200,70});
-  }
+  DrawAttributes();
 
   for(Rock* temp: engine_->GetRocks()) {
     temp->Display();
@@ -124,5 +103,30 @@ void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm
   const auto surface = box.render();
   const auto texture = cinder::gl::Texture::create(surface);
   cinder::gl::draw(texture, locp);
+}
+
+void MyApp::UpdateAttributes() {
+  y_position = static_cast<int>((ci::app::getElapsedSeconds()) * 300);
+  y_position = y_position % 350;
+  y_position += 230;
+
+  // takes care of the power gage.
+  power = static_cast<int>((ci::app::getElapsedSeconds()) * 3);
+  power = power % 5;
+}
+
+void MyApp::DrawAttributes() {
+  if (should_show_placement) {
+    cinder::gl::color(0,0,0);
+    cinder::gl::drawSolidCircle({50, y_position}, 25);
+  }
+  if (!engine_->GetIsLaunched()) {
+    std::string str = std::to_string(power + 1);
+    PrintText(str, {500, 500}, {100,70});
+  } else {
+    // prints out the selected power.
+    std::string str2 = std::to_string(selected_power + 1);
+    PrintText(str2, {500, 500}, {200,70});
+  }
 }
 }  // namespace myapp

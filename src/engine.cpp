@@ -3,9 +3,12 @@
 //
 
 #include "engine.h"
+#include <algorithm>
+
 
 engine::engine(b2World* input) {
   world = input;
+  current_rock = nullptr;
   turn_is_over = false;
   is_launched = false;
   is_red_turn = true;
@@ -22,7 +25,10 @@ void engine::SetIsLaunched(bool input) {
 }
 
 void engine::Step() {
-  if((rocks.size() == 0 && is_y_point_selected)
+  if (current_rock != nullptr) {
+    RemoveIfOutOfBounds();
+  }
+  if((current_rock == nullptr && is_y_point_selected)
       || (is_y_point_selected && is_launched && current_rock->IsStopped())) {
 
     Rock* rock = new Rock(world, {100.0f, (float32) y_point}, is_red_turn);
@@ -34,12 +40,29 @@ void engine::Step() {
   }
 }
 
-void engine::Reset() {}
-
 void engine::SetIsYPointSelected(bool input) {
   is_y_point_selected = input;
 }
 void engine::SetYPoint(int input) {
   y_point = input;
 }
+
+void engine::RemoveIfOutOfBounds() {
+  for (Rock* temp: rocks) {
+    if (temp->GetPosition().x >= back_line_) {
+      if (temp == current_rock) {
+        current_rock = nullptr;
+      }
+      rocks.erase(std::remove(rocks.begin(), rocks.end(), temp), rocks.end());
+      delete (temp);
+      break;
+    }
+  }
+}
+
+
+
+
+
+void engine::Reset() {}
 

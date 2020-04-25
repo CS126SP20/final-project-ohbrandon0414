@@ -25,7 +25,7 @@ class Board {
  private:
   float kx = 0;
   float ky = 200;
-  float kWidth = 1800;
+  float kWidth = 2070;
   float kHeight = 200;
 
   const cinder::vec2 tee = {1600, 400};

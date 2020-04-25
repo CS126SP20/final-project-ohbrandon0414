@@ -16,7 +16,8 @@ class MyApp : public cinder::app::App {
   void draw() override;
   void keyDown(cinder::app::KeyEvent) override;
   void mouseDown(cinder::app::MouseEvent) override;
-
+  void UpdateAttributes();
+  void DrawAttributes();
  private:
   int kRadius = 25;
   void PrintText(const std::string& text, const cinder::ivec2& size,

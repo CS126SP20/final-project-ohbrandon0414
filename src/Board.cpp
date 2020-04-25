@@ -31,6 +31,7 @@ Board::Board(b2World *world) {
   polygonShape.SetAsBox( 1, kHeight, b2Vec2(kx + kWidth, ky + kHeight), 0);//right wall
   staticBody->CreateFixture(&myFixtureDef);
 }
+
 void Board::Display() {
   cinder::gl::color(0.9f, 0.9f, 0.9f);
   cinder::gl::drawSolidRect(cinder::Rectf{kx, ky,kx + kWidth, ky + kHeight * 2});
@@ -48,5 +49,8 @@ void Board::Display() {
   cinder::gl::drawSolidCircle(tee, 50);
 
   cinder::gl::color(1,1,1);
-  cinder::gl::drawSolidCircle(tee, 20);
+  cinder::gl::drawSolidCircle(tee, 17.5);
+
+  cinder::gl::color(1,0,0);
+  cinder::gl::drawSolidRect(cinder::Rectf{1800,200, 1810, 600});
 }

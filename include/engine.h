@@ -36,6 +36,10 @@ class engine {
 
   Rock* GetCurrentRock() {return current_rock;}
 
+  int GetBackLine() {return back_line_;}
+
+  void RemoveIfOutOfBounds();
+
 
  private:
   std::vector<Rock*> rocks;
@@ -46,6 +50,7 @@ class engine {
   b2World* world;
   int y_point;
   bool is_y_point_selected;
+  int back_line_ = 1800;
 };
 
 #endif  // FINALPROJECT_ENGINE_H
