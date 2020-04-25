@@ -24,7 +24,7 @@ Board::Board(b2World *world) {
   //add four walls to the static body
   polygonShape.SetAsBox( kWidth, 1, b2Vec2(kx, ky), 0);//ceiling
   staticBody->CreateFixture(&myFixtureDef);
-  polygonShape.SetAsBox( kWidth, 1, b2Vec2(kx, ky + kHeight * 2), 0);//ground
+  polygonShape.SetAsBox( kWidth, 1, b2Vec2(kx, ky + kHeight), 0);//ground
   staticBody->CreateFixture(&myFixtureDef);
   polygonShape.SetAsBox( 1, kHeight, b2Vec2(kx, ky + kHeight), 0);//left wall
   staticBody->CreateFixture(&myFixtureDef);
@@ -34,7 +34,7 @@ Board::Board(b2World *world) {
 
 void Board::Display() {
   cinder::gl::color(0.9f, 0.9f, 0.9f);
-  cinder::gl::drawSolidRect(cinder::Rectf{kx, ky,kx + kWidth, ky + kHeight * 2});
+  cinder::gl::drawSolidRect(cinder::Rectf{kx, ky,kx + kWidth, ky + kHeight});
 
   cinder::gl::color(1,0,0);
   cinder::gl::drawSolidRect(cinder::Rectf{100, 200, 125, 600});

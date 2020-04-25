@@ -22,6 +22,10 @@ class MyApp : public cinder::app::App {
   int kRadius = 25;
   void PrintText(const std::string& text, const cinder::ivec2& size,
                  const cinder::vec2& loc);
+  bool angle_is_selected;
+  bool should_show_angle;
+  float angle_y_point;
+  bool should_show_placement;
 };
 
 }  // namespace myapp

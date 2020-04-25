@@ -12,11 +12,15 @@ class Board {
  public:
   Board(b2World* world);
 
-  /// gets the left top corner of the board.
-  b2Vec2 getLeftTopCorner() {return {kx, ky};}
 
-  /// gets the bottom right corner of the board.
-  b2Vec2 getRightBottomCorner() {return {kx + kWidth, ky + kHeight * 2};}
+  float GetFrontLine() {return front_line;}
+
+  float GetBackLine() {return back_line;}
+
+  float GetUpperSideLine() {return ky;}
+
+  float GetLowerSideLine() {return ky + kHeight;}
+
   void Display();
 
   cinder::vec2 GetTeePoint() {return tee;}
@@ -26,7 +30,9 @@ class Board {
   float kx = 0;
   float ky = 200;
   float kWidth = 2070;
-  float kHeight = 200;
+  float kHeight = 400;
+  float front_line = 100.0f;
+  float back_line = 1800.0f;
 
   const cinder::vec2 tee = {1600, 400};
 };

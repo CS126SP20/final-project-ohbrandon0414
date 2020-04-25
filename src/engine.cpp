@@ -3,16 +3,18 @@
 //
 
 #include "engine.h"
+#include "Board.h"
 #include <algorithm>
 
 
-engine::engine(b2World* input) {
-  world = input;
+engine::engine(b2World* input_world, Board* input_board) {
+  world = input_world;
   current_rock = nullptr;
   turn_is_over = false;
   is_launched = false;
   is_red_turn = true;
   is_y_point_selected = false;
+  board = input_board;
 }
 
 void engine::CreateRock(Rock* rock) {
@@ -26,12 +28,13 @@ void engine::SetIsLaunched(bool input) {
 
 void engine::Step() {
   if (current_rock != nullptr) {
-    RemoveIfOutOfBounds();
+    CheckOutOfBoundsHorizontal();
+    CheckOutOfBoundsVertical();
   }
   if((current_rock == nullptr && is_y_point_selected)
       || (is_y_point_selected && is_launched && current_rock->IsStopped())) {
 
-    Rock* rock = new Rock(world, {100.0f, (float32) y_point}, is_red_turn);
+    Rock* rock = new Rock(world, {board->GetFrontLine(),  y_point}, is_red_turn);
     CreateRock(rock);
     is_launched = false;
 
@@ -47,14 +50,22 @@ void engine::SetYPoint(int input) {
   y_point = input;
 }
 
-void engine::RemoveIfOutOfBounds() {
+void engine::CheckOutOfBoundsHorizontal() {
   for (Rock* temp: rocks) {
-    if (temp->GetPosition().x >= back_line_) {
-      if (temp == current_rock) {
-        current_rock = nullptr;
-      }
-      rocks.erase(std::remove(rocks.begin(), rocks.end(), temp), rocks.end());
-      delete (temp);
+    if (temp->GetPosition().x >= board->GetBackLine()) {
+      RemoveRock(temp);
+      break;
+    }
+  }
+}
+
+void engine::CheckOutOfBoundsVertical() {
+  for (Rock* temp: rocks) {
+    float y_pos = temp->GetPosition().y;
+    float radius = temp->GetRadius() + 5;
+
+    if (y_pos + radius >= board->GetLowerSideLine() || y_pos - radius <= board->GetUpperSideLine()) {
+      RemoveRock(temp);
       break;
     }
   }
@@ -62,7 +73,12 @@ void engine::RemoveIfOutOfBounds() {
 
 
 
-
-
 void engine::Reset() {}
+void engine::RemoveRock(Rock* rock) {
+  if (rock == current_rock) {
+    current_rock = nullptr;
+  }
+  rocks.erase(std::remove(rocks.begin(), rocks.end(), rock), rocks.end());
+  delete (rock);
+}
 

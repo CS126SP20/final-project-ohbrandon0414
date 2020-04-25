@@ -22,7 +22,6 @@ b2World* m_world;
 Board* board;
 engine* engine_;
 Rock* currentRock;
-bool should_show_placement = true;
 
 MyApp::MyApp() { }
 
@@ -30,8 +29,11 @@ void MyApp::setup() {
   // basic set up
   b2Vec2 gravity(0.0f, 0);
   m_world = new b2World(gravity);
-  engine_ = new engine(m_world);
   board = new Board(m_world);
+  engine_ = new engine(m_world, board);
+  angle_is_selected = false;
+  should_show_angle = false;
+  should_show_placement = true;
 }
 
 void MyApp::update() {
@@ -62,30 +64,56 @@ void MyApp::draw() {
 void MyApp::keyDown(KeyEvent event) {
   switch (event.getCode()) {
     case KeyEvent::KEY_p: {
-      if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
+      if (angle_is_selected && !engine_->GetIsLaunched()) {
         selected_power = power;
-        currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>((power + 1) * 100000) + 750000 , 0},
-                                                   currentRock->GetBody()->GetWorldCenter());
+        std::cout<<angle_y_point;
+        currentRock->GetBody()->ApplyLinearImpulse(
+            {static_cast<float32>((power + 1) * 100000) + 750000,
+             angle_y_point * (power + 1)  * 500},
+            currentRock->GetBody()->GetWorldCenter());
         engine_->SetIsLaunched(true);
         engine_->SetIsYPointSelected(false);
         should_show_placement = true;
+        angle_is_selected = false;
       }
       break;
     }
     case KeyEvent::KEY_d: {
       if (!engine_->GetIsYPointSelected()) {
-        engine_->SetYPoint(y_position);
-        engine_->SetIsYPointSelected(true);
-        should_show_placement = false;
+        if (currentRock == nullptr || currentRock->IsStopped()) {
+          engine_->SetYPoint(y_position);
+          engine_->SetIsYPointSelected(true);
+          should_show_placement = false;
+          should_show_angle = true;
+        }
+
       }
+      break;
+    }
+    case KeyEvent::KEY_a: {
+      if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
+        angle_y_point = y_position - currentRock->GetPosition().y;
+        angle_is_selected = true;
+        should_show_angle = false;
+      }
+      break;
     }
   }
-
-
   }
 
 /// mouse click controls the power gage.
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
+    if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
+    selected_power = power;
+    currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().x*1000-event.getPos().x*1000)) ,
+                                                static_cast<float32>((event.getPos().y * 1000 - currentRock->GetPosition().y*1000))},
+                                               currentRock->GetBody()->GetWorldCenter());
+    std::cout<<currentRock->GetPosition().x<<","<<currentRock->GetPosition().y;
+    std::cout<<event.getPos();
+    engine_->SetIsLaunched(true);
+    engine_->SetIsYPointSelected(false);
+    should_show_placement = true;
+  }
 }
 
 /// creates a textbox for the power
@@ -116,9 +144,15 @@ void MyApp::UpdateAttributes() {
 }
 
 void MyApp::DrawAttributes() {
-  if (should_show_placement) {
+  if (should_show_placement && (currentRock == nullptr || currentRock->IsStopped())) {
     cinder::gl::color(0,0,0);
     cinder::gl::drawSolidCircle({50, y_position}, 25);
+  } else {
+    if (!angle_is_selected && should_show_angle) {
+      cinder::gl::color(0,0,0);
+      cinder::gl::drawLine({currentRock->GetPosition().x, currentRock->GetPosition().y},
+                          {currentRock->GetPosition().x + 400, y_position});
+    }
   }
   if (!engine_->GetIsLaunched()) {
     std::string str = std::to_string(power + 1);

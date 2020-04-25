@@ -5,11 +5,12 @@
 #ifndef FINALPROJECT_ENGINE_H
 #define FINALPROJECT_ENGINE_H
 #include <Rock.h>
+#include <Board.h>
 #include <vector>
 
 class engine {
  public:
-  explicit engine(b2World* input);
+  explicit engine(b2World* input_world, Board* input_board);
 
   /// creates a rock with in the game
   void CreateRock(Rock* rock);
@@ -36,9 +37,11 @@ class engine {
 
   Rock* GetCurrentRock() {return current_rock;}
 
-  int GetBackLine() {return back_line_;}
+  void CheckOutOfBoundsHorizontal();
 
-  void RemoveIfOutOfBounds();
+  void RemoveRock(Rock* remove);
+
+  void CheckOutOfBoundsVertical();
 
 
  private:
@@ -48,9 +51,9 @@ class engine {
   bool is_red_turn;
   Rock* current_rock;
   b2World* world;
-  int y_point;
+  float y_point;
   bool is_y_point_selected;
-  int back_line_ = 1800;
+  Board* board;
 };
 
 #endif  // FINALPROJECT_ENGINE_H
