@@ -8,6 +8,7 @@
 #include <Box2D/Box2D.h>
 #include <cinder/gl/gl.h>
 #include <vector>
+#include <Location.h>
 class Board {
  public:
   Board(b2World* world);
@@ -23,7 +24,9 @@ class Board {
 
   void Display();
 
-  cinder::vec2 GetTeePoint() {return tee;}
+  Location GetTeePoint() {return {tee.x, tee.y};}
+
+  float GetHouseRadius() {return house_radius;}
 
 
  private:
@@ -33,6 +36,7 @@ class Board {
   float kHeight = 400;
   float front_line = 100.0f;
   float back_line = 1800.0f;
+  float house_radius = 150;
 
   const cinder::vec2 tee = {1600, 400};
 };

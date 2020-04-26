@@ -32,23 +32,34 @@ void MyApp::setup() {
   m_world = new b2World(gravity);
   board = new Board(m_world);
   engine_ = new engine(m_world, board);
-  angle_is_selected = false;
+  is_angle_set = false;
   should_show_angle = false;
   should_show_placement = true;
+  is_game_over = false;
 }
 
 void MyApp::update() {
-  engine_->Step();
-  UpdateAttributes();
-  // updates the current rock with in this file
-  currentRock = engine_->GetCurrentRock();
+  if (!is_game_over) {
+    engine_->Step();
+    if(engine_->GetIsGameOver()) {
+      is_game_over = true;
+    }
+    UpdateAttributes();
+    // updates the current rock with in this file
+    currentRock = engine_->GetCurrentRock();
 
-   for( int i = 0; i < 5; ++i ){
-     m_world->Step( 1 / 100.0f, 10, 10 );
-   }
+    for( int i = 0; i < 5; ++i ){
+      m_world->Step( 1 / 100.0f, 10, 10 );
+    }
+  }
 }
 
 void MyApp::draw() {
+  if (is_game_over) {
+    cinder::gl::clear();
+    DrawGameOver();
+    return;
+  }
   cinder::gl::enableAlphaBlending();
   cinder::gl::clear();
 
@@ -65,7 +76,7 @@ void MyApp::draw() {
 void MyApp::keyDown(KeyEvent event) {
   switch (event.getCode()) {
     case KeyEvent::KEY_p: {
-      if (angle_is_selected && !engine_->GetIsLaunched()) {
+      if (is_angle_set && !engine_->GetIsLaunched()) {
         selected_power = power;
         std::cout<<angle_y_point;
         currentRock->GetBody()->ApplyLinearImpulse(
@@ -75,7 +86,8 @@ void MyApp::keyDown(KeyEvent event) {
         engine_->SetIsLaunched(true);
         engine_->SetIsYPointSelected(false);
         should_show_placement = true;
-        angle_is_selected = false;
+        is_angle_set = false;
+        engine_->UpdateNumLaunches();
       }
       break;
     }
@@ -94,7 +106,7 @@ void MyApp::keyDown(KeyEvent event) {
     case KeyEvent::KEY_a: {
       if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
         angle_y_point = y_position - currentRock->GetPosition().GetY();
-        angle_is_selected = true;
+        is_angle_set = true;
         should_show_angle = false;
       }
       break;
@@ -113,7 +125,10 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
     std::cout<<event.getPos();
     engine_->SetIsLaunched(true);
     engine_->SetIsYPointSelected(false);
+    is_angle_set = true;
+    should_show_angle = false;
     should_show_placement = true;
+    engine_->UpdateNumLaunches();
   }
 }
 
@@ -149,7 +164,7 @@ void MyApp::DrawAttributes() {
     cinder::gl::color(0,0,0);
     cinder::gl::drawSolidCircle({50, y_position}, 25);
   } else {
-    if (!angle_is_selected && should_show_angle) {
+    if (!is_angle_set && should_show_angle) {
       cinder::gl::color(0,0,0);
       cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
                           {currentRock->GetPosition().GetX() + 400, y_position});
@@ -163,5 +178,8 @@ void MyApp::DrawAttributes() {
     std::string str2 = std::to_string(selected_power + 1);
     PrintText(str2, {500, 500}, {200,70});
   }
+}
+void MyApp::DrawGameOver() {
+  PrintText("Game Over", {1000, 1000} , {500, 500});
 }
 }  // namespace myapp

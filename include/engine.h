@@ -9,6 +9,11 @@
 #include <vector>
 
 class engine {
+  enum class WinnerState{
+    RedWins,
+    YellowWins,
+    NoWinner
+  };
  public:
   explicit engine(b2World* input_world, Board* input_board);
 
@@ -43,12 +48,25 @@ class engine {
 
   void CheckOutOfBoundsVertical();
 
+  void UpdateRocksInHouse();
+
+  void GetRocksInHouse();
+
   int GetWinnerScore();
+
+  Rock* GetClosestRockFromTee(std::vector<Rock*> list);
+
+  WinnerState GetWinner();
+
+  bool GetIsGameOver() {return is_game_over;}
+
+  void UpdateNumLaunches();
 
 
  private:
   std::vector<Rock*> rocks;
-  std::vector<Rock*> rocks_in_house;
+  std::vector<Rock*> rocks_in_house_red;
+  std::vector<Rock*> rocks_in_house_other;
   bool turn_is_over;
   bool is_launched;
   bool is_red_turn;
@@ -58,8 +76,8 @@ class engine {
   bool is_y_point_selected;
   Board* board;
   int num_launches;
-  int kTurns = 5;
-
+  int kTurns = 1;
+  WinnerState winner;
   bool is_game_over;
 };
 

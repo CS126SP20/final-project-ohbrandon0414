@@ -19,13 +19,15 @@ class MyApp : public cinder::app::App {
   void mouseDown(cinder::app::MouseEvent) override;
   void UpdateAttributes();
   void DrawAttributes();
+  void DrawGameOver();
  private:
   void PrintText(const std::string& text, const cinder::ivec2& size,
                  const cinder::vec2& loc);
-  bool angle_is_selected;
+  bool is_angle_set;
   bool should_show_angle;
   float angle_y_point;
   bool should_show_placement;
+  bool is_game_over;
 };
 
 }  // namespace myapp

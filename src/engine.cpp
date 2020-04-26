@@ -18,12 +18,12 @@ engine::engine(b2World* input_world, Board* input_board) {
   board = input_board;
   num_launches = 0;
   is_game_over = false;
+  winner = WinnerState::NoWinner;
 }
 
 void engine::CreateRock(Rock* rock) {
   current_rock = rock;
   rocks.push_back(rock);
-  num_launches++;
 }
 
 void engine::SetIsLaunched(bool input) {
@@ -31,7 +31,8 @@ void engine::SetIsLaunched(bool input) {
 }
 
 void engine::Step() {
-  if (num_launches >= 2 * kTurns) {
+  if (num_launches >= (2 * kTurns) &&
+      (current_rock == nullptr || current_rock->IsStopped())) {
     is_game_over = true;
     return;
   }
@@ -79,9 +80,6 @@ void engine::CheckOutOfBoundsVertical() {
   }
 }
 
-
-
-void engine::Reset() {}
 void engine::RemoveRock(Rock* rock) {
   if (rock == current_rock) {
     current_rock = nullptr;
@@ -90,12 +88,95 @@ void engine::RemoveRock(Rock* rock) {
   delete (rock);
 }
 
+
+void engine::GetRocksInHouse() {
+
+}
 int engine::GetWinnerScore() {
-  b2Vec2 min = {FLT_MAX, FLT_MAX};
-  float distance = FLT_MAX;
-  for (Rock* rock: rocks) {
-    b2Vec2 pos = rock->GetBody()->GetPosition();
-//    if (distance <= pos)
+  int count = 0;
+
+  if (winner == WinnerState::RedWins) {
+    Rock* yellow = GetClosestRockFromTee(rocks_in_house_other);
+    if (yellow == nullptr) {
+      return rocks_in_house_red.size();
+    }
+    float y_dis = yellow->GetPosition().distance(board->GetTeePoint());
+    for (Rock* rock: rocks_in_house_red) {
+      float rock_dis = rock->GetPosition().distance(board->GetTeePoint());
+      if(rock_dis <= y_dis) {
+        count++;
+      }
+    }
+    return count;
   }
-  return 1;
+  if (winner == WinnerState::YellowWins){
+    Rock* red = GetClosestRockFromTee(rocks_in_house_red);
+    if (red == nullptr) {
+      return rocks_in_house_other.size();
+    }
+    float r_dis = red->GetPosition().distance(board->GetTeePoint());
+    for(Rock* rock: rocks_in_house_other) {
+      float rock_dis = rock->GetPosition().distance(board->GetTeePoint());
+      if(rock_dis <= r_dis) {
+        count++;
+      }
+    }
+    return count;
+  }
+  return 0;
+}
+void engine::UpdateRocksInHouse() {
+  for (Rock* rock: rocks) {
+    float distance = rock->GetPosition().distance(board->GetTeePoint());
+    if (distance <= board->GetHouseRadius()) {
+      if(rock->IsRed()) {
+        rocks_in_house_red.push_back(rock);
+      } else {
+        rocks_in_house_other.push_back(rock);
+      }
+    }
+  }
+}
+Rock* engine::GetClosestRockFromTee(std::vector<Rock*> list) {
+  float min = FLT_MAX;
+  Rock* winning_rock = nullptr;
+  if (list.empty()) {
+    return winning_rock;
+  }
+  for (Rock* rock: list) {
+    float distance = rock->GetPosition().distance(board->GetTeePoint());
+    if (distance <= min) {
+      min = distance;
+      winning_rock = rock;
+    }
+  }
+  return winning_rock;
+}
+engine::WinnerState engine::GetWinner() {
+  if(rocks_in_house_red.empty() && rocks_in_house_other.empty()) {
+    return engine::WinnerState::NoWinner;
+  }
+  if (rocks_in_house_other.empty()) {
+    return engine::WinnerState::RedWins;
+  }
+  if (rocks_in_house_red.empty()) {
+    return engine::WinnerState::YellowWins;
+  }
+
+  if(GetClosestRockFromTee(rocks)->IsRed()) {
+    return engine::WinnerState::RedWins;
+  } else {
+    return engine::WinnerState::YellowWins;
+  }
+}
+
+
+
+
+
+
+
+void engine::Reset() {}
+void engine::UpdateNumLaunches() {
+  num_launches++;
 }
