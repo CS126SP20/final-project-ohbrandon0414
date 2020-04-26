@@ -42,13 +42,11 @@ void Rock::Display() {
   }
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius / 2);
 }
-b2Vec2 Rock::GetLocation() {
-  return m_body->GetLocalCenter();
-}
+
 bool Rock::IsStopped() {
   return m_body->GetLinearVelocity().x <= 3;
 }
-cinder::vec2 Rock::GetPosition() {
+Location Rock::GetPosition() {
   return {m_body->GetPosition().x, m_body->GetPosition().y};
 }
 Rock::~Rock() {

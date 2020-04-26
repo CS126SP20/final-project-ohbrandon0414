@@ -10,6 +10,7 @@
 #include <glm/fwd.hpp>
 #include <cinder/app/App.h>
 #include <cinder/gl/gl.h>
+#include <Location.h>
 
 class Rock {
    public:
@@ -28,16 +29,13 @@ class Rock {
     /// draws the rock on the screen.
     void Display();
 
-    /// gets the location of the rock.
-    b2Vec2 GetLocation();
-
     /// checks if the rock was already launched
     bool IsLaunched() {return is_launched;}
 
     /// checks if the rocks completely stopped.
     bool IsStopped();
 
-    cinder::vec2 GetPosition();
+    Location GetPosition();
 
     ~Rock();
 

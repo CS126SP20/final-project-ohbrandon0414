@@ -4,6 +4,7 @@
 #define FINALPROJECT_APPS_MYAPP_H_
 
 #include <cinder/app/App.h>
+#include <Location.h>
 
 
 namespace myapp {
@@ -19,7 +20,6 @@ class MyApp : public cinder::app::App {
   void UpdateAttributes();
   void DrawAttributes();
  private:
-  int kRadius = 25;
   void PrintText(const std::string& text, const cinder::ivec2& size,
                  const cinder::vec2& loc);
   bool angle_is_selected;

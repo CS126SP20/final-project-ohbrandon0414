@@ -5,6 +5,7 @@
 #include "engine.h"
 #include "Board.h"
 #include <algorithm>
+#include <Location.h>
 
 
 engine::engine(b2World* input_world, Board* input_board) {
@@ -15,11 +16,14 @@ engine::engine(b2World* input_world, Board* input_board) {
   is_red_turn = true;
   is_y_point_selected = false;
   board = input_board;
+  num_launches = 0;
+  is_game_over = false;
 }
 
 void engine::CreateRock(Rock* rock) {
   current_rock = rock;
   rocks.push_back(rock);
+  num_launches++;
 }
 
 void engine::SetIsLaunched(bool input) {
@@ -27,6 +31,10 @@ void engine::SetIsLaunched(bool input) {
 }
 
 void engine::Step() {
+  if (num_launches >= 2 * kTurns) {
+    is_game_over = true;
+    return;
+  }
   if (current_rock != nullptr) {
     CheckOutOfBoundsHorizontal();
     CheckOutOfBoundsVertical();
@@ -52,7 +60,7 @@ void engine::SetYPoint(int input) {
 
 void engine::CheckOutOfBoundsHorizontal() {
   for (Rock* temp: rocks) {
-    if (temp->GetPosition().x >= board->GetBackLine()) {
+    if (temp->GetPosition().GetX() >= board->GetBackLine()) {
       RemoveRock(temp);
       break;
     }
@@ -61,8 +69,8 @@ void engine::CheckOutOfBoundsHorizontal() {
 
 void engine::CheckOutOfBoundsVertical() {
   for (Rock* temp: rocks) {
-    float y_pos = temp->GetPosition().y;
-    float radius = temp->GetRadius() + 5;
+    float y_pos = temp->GetPosition().GetY();
+    float radius = temp->GetRadius() + 10;
 
     if (y_pos + radius >= board->GetLowerSideLine() || y_pos - radius <= board->GetUpperSideLine()) {
       RemoveRock(temp);
@@ -82,3 +90,12 @@ void engine::RemoveRock(Rock* rock) {
   delete (rock);
 }
 
+int engine::GetWinnerScore() {
+  b2Vec2 min = {FLT_MAX, FLT_MAX};
+  float distance = FLT_MAX;
+  for (Rock* rock: rocks) {
+    b2Vec2 pos = rock->GetBody()->GetPosition();
+//    if (distance <= pos)
+  }
+  return 1;
+}

@@ -11,6 +11,7 @@
 #include <Rock.h>
 #include <Board.h>
 #include <engine.h>
+#include <Location.h>
 namespace myapp {
 
 using cinder::app::KeyEvent;
@@ -92,7 +93,7 @@ void MyApp::keyDown(KeyEvent event) {
     }
     case KeyEvent::KEY_a: {
       if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
-        angle_y_point = y_position - currentRock->GetPosition().y;
+        angle_y_point = y_position - currentRock->GetPosition().GetY();
         angle_is_selected = true;
         should_show_angle = false;
       }
@@ -105,10 +106,10 @@ void MyApp::keyDown(KeyEvent event) {
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
     if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
     selected_power = power;
-    currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().x*1000-event.getPos().x*1000)) ,
-                                                static_cast<float32>((event.getPos().y * 1000 - currentRock->GetPosition().y*1000))},
+    currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().GetX() * 1000 - event.getPos().x * 1000)) ,
+                                                static_cast<float32>((event.getPos().y * 1000 - currentRock->GetPosition().GetY() * 1000))},
                                                currentRock->GetBody()->GetWorldCenter());
-    std::cout<<currentRock->GetPosition().x<<","<<currentRock->GetPosition().y;
+    std::cout<<currentRock->GetPosition().GetX()<<","<<currentRock->GetPosition().GetY();
     std::cout<<event.getPos();
     engine_->SetIsLaunched(true);
     engine_->SetIsYPointSelected(false);
@@ -150,8 +151,8 @@ void MyApp::DrawAttributes() {
   } else {
     if (!angle_is_selected && should_show_angle) {
       cinder::gl::color(0,0,0);
-      cinder::gl::drawLine({currentRock->GetPosition().x, currentRock->GetPosition().y},
-                          {currentRock->GetPosition().x + 400, y_position});
+      cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
+                          {currentRock->GetPosition().GetX() + 400, y_position});
     }
   }
   if (!engine_->GetIsLaunched()) {

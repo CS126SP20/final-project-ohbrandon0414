@@ -43,9 +43,12 @@ class engine {
 
   void CheckOutOfBoundsVertical();
 
+  int GetWinnerScore();
+
 
  private:
   std::vector<Rock*> rocks;
+  std::vector<Rock*> rocks_in_house;
   bool turn_is_over;
   bool is_launched;
   bool is_red_turn;
@@ -54,6 +57,10 @@ class engine {
   float y_point;
   bool is_y_point_selected;
   Board* board;
+  int num_launches;
+  int kTurns = 5;
+
+  bool is_game_over;
 };
 
 #endif  // FINALPROJECT_ENGINE_H
