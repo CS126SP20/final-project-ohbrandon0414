@@ -34,6 +34,8 @@ void engine::Step() {
   if (num_launches >= (2 * kTurns) &&
       (current_rock == nullptr || current_rock->IsStopped())) {
     is_game_over = true;
+    UpdateRocksInHouse();
+    winner = GetWinner();
     return;
   }
   if (current_rock != nullptr) {
@@ -41,7 +43,7 @@ void engine::Step() {
     CheckOutOfBoundsVertical();
   }
   if((current_rock == nullptr && is_y_point_selected)
-      || (is_y_point_selected && is_launched && current_rock->IsStopped())) {
+      || (is_y_point_selected && is_launched && AllRocksAreStopped())) {
 
     Rock* rock = new Rock(world, {board->GetFrontLine(),  y_point}, is_red_turn);
     CreateRock(rock);
@@ -123,7 +125,7 @@ int engine::GetWinnerScore() {
     }
     return count;
   }
-  return 0;
+  return -1;
 }
 void engine::UpdateRocksInHouse() {
   for (Rock* rock: rocks) {
@@ -170,6 +172,18 @@ engine::WinnerState engine::GetWinner() {
   }
 }
 
+void engine::UpdateNumLaunches() {
+  num_launches++;
+}
+bool engine::AllRocksAreStopped() {
+  for (Rock* rock: rocks) {
+    if (!rock->IsStopped()) {
+      return false;
+    }
+  }
+  return true;
+}
+
 
 
 
@@ -177,6 +191,4 @@ engine::WinnerState engine::GetWinner() {
 
 
 void engine::Reset() {}
-void engine::UpdateNumLaunches() {
-  num_launches++;
-}
+

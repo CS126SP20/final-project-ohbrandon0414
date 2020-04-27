@@ -36,6 +36,8 @@ void MyApp::setup() {
   should_show_angle = false;
   should_show_placement = true;
   is_game_over = false;
+  use_key = false;
+  use_mouse = false;
 }
 
 void MyApp::update() {
@@ -55,8 +57,11 @@ void MyApp::update() {
 }
 
 void MyApp::draw() {
+  if (is_start_screen) {
+    DrawStartScreen();
+    return;
+  }
   if (is_game_over) {
-    cinder::gl::clear();
     DrawGameOver();
     return;
   }
@@ -75,7 +80,21 @@ void MyApp::draw() {
 
 void MyApp::keyDown(KeyEvent event) {
   switch (event.getCode()) {
-    case KeyEvent::KEY_p: {
+    case KeyEvent::KEY_1: {
+      if(is_start_screen) {
+        use_mouse = true;
+        is_start_screen = false;
+      }
+      break;
+    }
+    case KeyEvent::KEY_2: {
+      if(is_start_screen) {
+        use_key = true;
+        is_start_screen = false;
+      }
+      break;
+    }
+      case KeyEvent::KEY_p: {
       if (is_angle_set && !engine_->GetIsLaunched()) {
         selected_power = power;
         std::cout<<angle_y_point;
@@ -180,6 +199,26 @@ void MyApp::DrawAttributes() {
   }
 }
 void MyApp::DrawGameOver() {
-  PrintText("Game Over", {1000, 1000} , {500, 500});
+  PrintText("Game Over", {1000, 1000} , {1000, 200});
+  std::string winner;
+  std::string score;
+  if (engine_->GetWinner() == engine::WinnerState::NoWinner) {
+    winner = "Tie";
+  } else {
+     score = std::to_string(engine_->GetWinnerScore());
+    if (engine_->GetWinner() == engine::WinnerState::YellowWins) {
+      winner = "Yellow";
+    } else {
+      winner = "Red";
+    }
+  }
+  PrintText(winner, {1000, 1000} , {1000, 500});
+  PrintText(score, {1000, 1000} , {1000, 800});
+
+}
+void MyApp::DrawStartScreen() {
+  PrintText("Press 1 to Use mouse", {1000, 1000} , {1000, 200});
+  PrintText("Press 2 to Use keys", {1000, 1000} , {1000, 500});
+
 }
 }  // namespace myapp

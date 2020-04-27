@@ -20,6 +20,7 @@ class MyApp : public cinder::app::App {
   void UpdateAttributes();
   void DrawAttributes();
   void DrawGameOver();
+  void DrawStartScreen();
  private:
   void PrintText(const std::string& text, const cinder::ivec2& size,
                  const cinder::vec2& loc);
@@ -28,6 +29,9 @@ class MyApp : public cinder::app::App {
   float angle_y_point;
   bool should_show_placement;
   bool is_game_over;
+  bool is_start_screen;
+  bool use_key;
+  bool use_mouse;
 };
 
 }  // namespace myapp
