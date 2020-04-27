@@ -23,7 +23,7 @@ class MyApp : public cinder::app::App {
   void DrawStartScreen();
  private:
   void PrintText(const std::string& text, const cinder::ivec2& size,
-                 const cinder::vec2& loc);
+                 const cinder::vec2& loc, const cinder::Color color);
   bool is_angle_set;
   bool should_show_angle;
   float angle_y_point;
@@ -32,6 +32,8 @@ class MyApp : public cinder::app::App {
   bool is_start_screen;
   bool use_key;
   bool use_mouse;
+  float mouse_x;
+  float mouse_y;
 };
 
 }  // namespace myapp

@@ -16,7 +16,7 @@ Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   //set up dynamic body, store in class variable
   b2BodyDef myBodyDef;
   myBodyDef.type = b2_dynamicBody;
-  myBodyDef.linearDamping = 0.07f;
+  myBodyDef.linearDamping = 0.1f;
   myBodyDef.position.Set(loc.x, loc.y);
   m_body = world->CreateBody(&myBodyDef);
 

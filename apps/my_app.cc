@@ -95,9 +95,8 @@ void MyApp::keyDown(KeyEvent event) {
       break;
     }
       case KeyEvent::KEY_p: {
-      if (is_angle_set && !engine_->GetIsLaunched()) {
+      if (use_key && is_angle_set && !engine_->GetIsLaunched()) {
         selected_power = power;
-        std::cout<<angle_y_point;
         currentRock->GetBody()->ApplyLinearImpulse(
             {static_cast<float32>((power + 1) * 100000) + 750000,
              angle_y_point * (power + 1)  * 500},
@@ -123,7 +122,7 @@ void MyApp::keyDown(KeyEvent event) {
       break;
     }
     case KeyEvent::KEY_a: {
-      if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
+      if (use_key && engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
         angle_y_point = y_position - currentRock->GetPosition().GetY();
         is_angle_set = true;
         should_show_angle = false;
@@ -140,8 +139,6 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
     currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().GetX() * 1000 - event.getPos().x * 1000)) ,
                                                 static_cast<float32>((event.getPos().y * 1000 - currentRock->GetPosition().GetY() * 1000))},
                                                currentRock->GetBody()->GetWorldCenter());
-    std::cout<<currentRock->GetPosition().GetX()<<","<<currentRock->GetPosition().GetY();
-    std::cout<<event.getPos();
     engine_->SetIsLaunched(true);
     engine_->SetIsYPointSelected(false);
     is_angle_set = true;
@@ -152,9 +149,8 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
 }
 
 /// creates a textbox for the power
-void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm::vec2& loc) {
-  cinder::gl::color(1,1,0.5);
-
+void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm::vec2& loc, const cinder::Color color) {
+  cinder::gl::color(color);
   auto box = cinder::TextBox()
       .alignment(cinder::TextBox::CENTER)
       .font(cinder::Font("Arial", 100))
@@ -183,23 +179,30 @@ void MyApp::DrawAttributes() {
     cinder::gl::color(0,0,0);
     cinder::gl::drawSolidCircle({50, y_position}, 25);
   } else {
-    if (!is_angle_set && should_show_angle) {
-      cinder::gl::color(0,0,0);
-      cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
-                          {currentRock->GetPosition().GetX() + 400, y_position});
+    if (should_show_angle) {
+      if (use_key) {
+        cinder::gl::color(0,0,0);
+        cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
+                             {currentRock->GetPosition().GetX() + 400, y_position});
+      }
+      if (use_mouse) {
+        cinder::gl::color(0,0,0);
+        cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
+                             getMousePos());
+      }
     }
   }
   if (!engine_->GetIsLaunched()) {
     std::string str = std::to_string(power + 1);
-    PrintText(str, {500, 500}, {100,70});
+    PrintText(str, {500, 500}, {100,70}, cinder::Color::white());
   } else {
     // prints out the selected power.
     std::string str2 = std::to_string(selected_power + 1);
-    PrintText(str2, {500, 500}, {200,70});
+    PrintText(str2, {500, 500}, {200,70}, cinder::Color::white());
   }
 }
 void MyApp::DrawGameOver() {
-  PrintText("Game Over", {1000, 1000} , {1000, 200});
+  PrintText("Set Over", {1000, 1000} , {1000, 300}, cinder::Color::black());
   std::string winner;
   std::string score;
   if (engine_->GetWinner() == engine::WinnerState::NoWinner) {
@@ -212,13 +215,13 @@ void MyApp::DrawGameOver() {
       winner = "Red";
     }
   }
-  PrintText(winner, {1000, 1000} , {1000, 500});
-  PrintText(score, {1000, 1000} , {1000, 800});
+  PrintText(winner, {1000, 1000} , {1000, 500}, cinder::Color::black());
+  PrintText(score, {1000, 1000} , {1000, 800}, cinder::Color::white());
 
 }
 void MyApp::DrawStartScreen() {
-  PrintText("Press 1 to Use mouse", {1000, 1000} , {1000, 200});
-  PrintText("Press 2 to Use keys", {1000, 1000} , {1000, 500});
+  PrintText("Press 1 to Use mouse", {1000, 1000}, {1000, 200}, cinder::Color::white());
+  PrintText("Press 2 to Use keys", {1000, 1000}, {1000, 500} , cinder::Color::white());
 
 }
 }  // namespace myapp
