@@ -58,6 +58,8 @@ class engine {
 
   bool AllRocksAreStopped();
 
+  void SetUseOB(bool input);
+
   enum class WinnerState{
     RedWins,
     YellowWins,
@@ -81,6 +83,7 @@ class engine {
   int kTurns = 3;
   WinnerState winner;
   bool is_game_over;
+  bool use_ob;
 };
 
 #endif  // FINALPROJECT_ENGINE_H

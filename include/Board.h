@@ -32,7 +32,7 @@ class Board {
  private:
   float kx = 0;
   float ky = 200;
-  float kWidth = 2070;
+  float kWidth = 1900;
   float kHeight = 400;
   float front_line = 100.0f;
   float back_line = 1800.0f;

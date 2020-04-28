@@ -18,6 +18,7 @@ engine::engine(b2World* input_world, Board* input_board) {
   num_launches = 0;
   is_game_over = false;
   winner = WinnerState::NoWinner;
+  use_ob = true;
 }
 
 void engine::CreateRock(Rock* rock) {
@@ -37,7 +38,7 @@ void engine::Step() {
     winner = GetWinner();
     return;
   }
-  if (current_rock != nullptr) {
+  if (current_rock != nullptr && use_ob) {
     CheckOutOfBoundsHorizontal();
     CheckOutOfBoundsVertical();
   }
@@ -190,4 +191,6 @@ bool engine::AllRocksAreStopped() {
 
 
 void engine::Reset() {}
-
+void engine::SetUseOB(bool input) {
+  use_ob = input;
+}

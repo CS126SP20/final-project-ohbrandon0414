@@ -24,6 +24,8 @@ Board* board;
 engine* engine_;
 Rock* currentRock;
 
+
+
 MyApp::MyApp() { }
 
 void MyApp::setup() {
@@ -37,7 +39,8 @@ void MyApp::setup() {
   should_show_placement = true;
   is_game_over = false;
   use_key = false;
-  use_mouse = false;
+  use_mouse = true;
+  use_ob = true;
 }
 
 void MyApp::update() {
@@ -136,19 +139,34 @@ void MyApp::keyDown(KeyEvent event){
 /// mouse click controls the power gage.
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
   if(is_start_screen) {
-      if(event.getY() < 600 && event.getY() > 400) {
-        use_mouse = true;
-        is_start_screen = false;
+      if(event.getY() < 450 && event.getY() > 350) {
+        if (event.getX() < 1000) {
+          use_mouse = true;
+          use_key = false;
+        }
+        if(event.getX() > 1000) {
+          use_key = true;
+          use_mouse = false;
+        }
       }
-      if (event.getY() < 800 && event.getY() > 600) {
-        use_key = true;
+      if (event.getY() < 550 && event.getY() > 450) {
+        if (event.getX() < 1000){
+          use_ob = true;
+        }
+        if (event.getX() > 1000){
+          use_ob = false;
+        }
+        engine_->SetUseOB(use_ob);
+      }
+      if (event.getY() > 550) {
         is_start_screen = false;
       }
   }
   if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
     selected_power = power;
     currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().GetX() * 1000 - event.getPos().x * 1000)) ,
-                                                static_cast<float32>((event.getPos().y * 1000 - currentRock->GetPosition().GetY() * 1000))},
+                                                static_cast<float32>((event.getPos().y * 1000
+                                                                      - currentRock->GetPosition().GetY() * 1000))},
                                                currentRock->GetBody()->GetWorldCenter());
     engine_->SetIsLaunched(true);
     engine_->SetIsYPointSelected(false);
@@ -160,8 +178,8 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
 }
 
 /// creates a textbox for the power
-void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm::vec2& loc) {
-  cinder::gl::color(0,0,0.7);
+void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm::vec2& loc, bool changer) {
+  cinder::gl::color(changer,0,0.7);
   auto box = cinder::TextBox()
       .alignment(cinder::TextBox::CENTER)
       .font(cinder::Font("Arial", 100))
@@ -211,16 +229,16 @@ void MyApp::DrawAttributes() {
   if (use_key && is_angle_set) {
     if (!engine_->GetIsLaunched()) {
       std::string str = std::to_string(power + 1);
-      PrintText(str, {1000, 1000}, {1000,70});
+      PrintText(str, {1000, 1000}, {1000,70}, false);
     } else {
       // prints out the selected power.
       std::string str2 = std::to_string(selected_power + 1);
-      PrintText(str2, {1000, 1000}, {1000,70});
+      PrintText(str2, {1000, 1000}, {1000,70}, false);
     }
   }
 }
 void MyApp::DrawGameOver() {
-  PrintText("Set Over", {1000, 1000} , {1000, 300});
+  PrintText("Set Over", {1000, 1000} , {1000, 300}, false);
   std::string winner;
   std::string score;
   if (engine_->GetWinner() == engine::WinnerState::NoWinner) {
@@ -233,14 +251,21 @@ void MyApp::DrawGameOver() {
       winner = "Red:";
     }
   }
-  PrintText(winner, {1000, 1000} , {800, 500});
-  PrintText(score, {1000, 1000} , {1000, 500});
+  PrintText(winner, {1000, 1000} , {800, 500} , false);
+  PrintText(score, {1000, 1000} , {1000, 500}, false);
 
 }
 void MyApp::DrawStartScreen() {
-  PrintText("CLICK ON YOUR OPTION", {1800, 500}, {1000, 200});
-  PrintText("USE MOUSE", {500, 500}, {1000, 500});
-  PrintText("USE KEYS", {500, 500}, {1000, 700});
+  PrintText("CLICK ON YOUR OPTION", {1800, 500}, {1000, 100}, false);
+  PrintText("USE: ", {1500, 500}, {600, 400}, false);
+  PrintText("MOUSE", {1500, 500}, {900, 400}, use_mouse);
+  PrintText("KEYS", {1500, 500}, {1200, 400}, use_key);
+  PrintText("OUT OF BOUNDS: ", {1500, 500}, {600, 500}, false);
+  PrintText("YES", {1500, 500}, {1000, 500}, use_ob == true);
+  PrintText("NO", {1500, 500}, {1200, 500}, use_ob == false);
+
+  PrintText("NEXT", {1500, 500}, {1000, 600}, false);
+
 
 }
 }  // namespace myapp
