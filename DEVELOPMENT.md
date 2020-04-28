@@ -11,6 +11,19 @@
    
  - **4/24/20** Out of bounds finished
    - Ball gets removed if it goes out of bounds
-   - Angle needs to be implemented   
-   - Game using the mouse needs to be implemented.   
+   - ~~Angle needs to be implemented~~   
+   - ~~Game using the mouse needs to be implemented~~
+   
+ - **4/25/20** Angle selection implemented
+   - Location class for further convenience
+   - Angle selection implemented when using keys
+   - ~~Need overall scoring and game over screen~~
+   
+ - **4/26/20** Scoring and Game over Screen 
+   - Scores are now implemented after set is finished
+   - Game over screen and starting screen has been implemented
+   - User has a choice for the game before it starts
+   - Projection Line implemented
+   - Need to put in the concept of sets
+
 ---

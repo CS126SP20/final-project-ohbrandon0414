@@ -43,7 +43,7 @@ void Rock::Display() {
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius / 2);
 }
 
-bool Rock::IsStopped() {
+bool Rock::IsSlowedDown() {
   return m_body->GetLinearVelocity().x <= 3;
 }
 Location Rock::GetPosition() {
@@ -52,3 +52,4 @@ Location Rock::GetPosition() {
 Rock::~Rock() {
   m_body->GetWorld()->DestroyBody(m_body);
 }
+bool Rock::IsCompletelyStopped() { return m_body->GetLinearVelocity() == b2Vec2_zero; }

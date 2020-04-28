@@ -11,7 +11,6 @@
 engine::engine(b2World* input_world, Board* input_board) {
   world = input_world;
   current_rock = nullptr;
-  turn_is_over = false;
   is_launched = false;
   is_red_turn = true;
   is_y_point_selected = false;
@@ -32,7 +31,7 @@ void engine::SetIsLaunched(bool input) {
 
 void engine::Step() {
   if (num_launches >= (2 * kTurns) &&
-      (current_rock == nullptr || current_rock->IsStopped())) {
+      (current_rock == nullptr || current_rock->IsCompletelyStopped())) {
     is_game_over = true;
     UpdateRocksInHouse();
     winner = GetWinner();
@@ -125,7 +124,7 @@ int engine::GetWinnerScore() {
     }
     return count;
   }
-  return -1;
+  return 0;
 }
 void engine::UpdateRocksInHouse() {
   for (Rock* rock: rocks) {
@@ -177,7 +176,7 @@ void engine::UpdateNumLaunches() {
 }
 bool engine::AllRocksAreStopped() {
   for (Rock* rock: rocks) {
-    if (!rock->IsStopped()) {
+    if (!rock->IsSlowedDown()) {
       return false;
     }
   }

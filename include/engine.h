@@ -70,7 +70,6 @@ class engine {
   std::vector<Rock*> rocks;
   std::vector<Rock*> rocks_in_house_red;
   std::vector<Rock*> rocks_in_house_other;
-  bool turn_is_over;
   bool is_launched;
   bool is_red_turn;
   Rock* current_rock;

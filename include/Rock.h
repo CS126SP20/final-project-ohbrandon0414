@@ -33,12 +33,13 @@ class Rock {
     bool IsLaunched() {return is_launched;}
 
     /// checks if the rocks completely stopped.
-    bool IsStopped();
+    bool IsSlowedDown();
+
+    bool IsCompletelyStopped();
 
     Location GetPosition();
 
     ~Rock();
-
 
    private:
     b2Body* m_body;
