@@ -23,7 +23,14 @@
    - Scores are now implemented after set is finished
    - Game over screen and starting screen has been implemented
    - User has a choice for the game before it starts
-   - Projection Line implemented
-   - Need to put in the concept of sets
+   - ~~Projection Line implemented~~
+   
+ - **4/27/20** Basic starting screen 
+   - Basic starting screen has been implemented
+   
+ - **4/26/20** Options are featured with concept of sets now
+   - Sets are not implemented
+   - Game ends after 3 sets
+   - Options could be chosen before the game starts
 
 ---

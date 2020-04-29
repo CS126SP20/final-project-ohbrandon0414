@@ -24,8 +24,8 @@ Board* board;
 engine* engine_;
 Rock* currentRock;
 int sets = 0;
-
-
+std::string r_score = "R";
+std::string y_score = "Y";
 
 MyApp::MyApp() { }
 
@@ -38,16 +38,16 @@ void MyApp::setup() {
   is_angle_set = false;
   should_show_angle = false;
   should_show_placement = true;
-  is_game_over = false;
+  is_set_over = false;
   use_key = false;
   use_mouse = true;
   use_ob = true;
 }
 
 void MyApp::update() {
-  is_game_over = engine_->GetIsGameOver();
-  std::cout<<"\n"<<is_game_over;
-  if (!is_game_over) {
+  // update the state if the set if over or not
+  is_set_over = engine_->GetIsSetOver();
+  if (!is_set_over) {
     engine_->Step();
     UpdateAttributes();
     // updates the current rock with in this file
@@ -64,7 +64,7 @@ void MyApp::draw() {
     DrawStartScreen();
     return;
   }
-  if (is_game_over) {
+  if (is_set_over) {
     DrawGameOver();
     return;
   }
@@ -73,8 +73,12 @@ void MyApp::draw() {
 
   board->Display();
 
+  // attributes are drawn in different situations
   DrawAttributes();
+  // draw the score at the bottom
+  DrawScore();
 
+  // display all the rocks at the moment
   for(Rock* temp: engine_->GetRocks()) {
     temp->Display();
   }
@@ -83,27 +87,17 @@ void MyApp::draw() {
 
 void MyApp::keyDown(KeyEvent event){
   switch (event.getCode()) {
-    case KeyEvent::KEY_1: {
-      if(is_start_screen) {
-        use_mouse = true;
-        is_start_screen = false;
-      }
-      break;
-    }
-    case KeyEvent::KEY_2: {
-      if(is_start_screen) {
-        use_key = true;
-        is_start_screen = false;
-      }
-      break;
-    }
+      // power of the rock
       case KeyEvent::KEY_p: {
-      if (use_key && is_angle_set && !engine_->GetIsLaunched() && !engine_->GetIsGameOver()) {
+      if (use_key && is_angle_set && !engine_->GetIsLaunched() && !engine_->GetIsSetOver()) {
+        // save the power selected to show it
         selected_power = power;
+        // apply the force selected
         currentRock->GetBody()->ApplyLinearImpulse(
             {static_cast<float32>((power + 1) * 75000) + 1100000,
              angle_y_point * (power + 1)  * 500},
             currentRock->GetBody()->GetWorldCenter());
+        // update the bool variables
         engine_->SetIsLaunched(true);
         engine_->SetIsYPointSelected(false);
         should_show_placement = true;
@@ -112,9 +106,11 @@ void MyApp::keyDown(KeyEvent event){
       }
       break;
     }
+      // placement of the rock
     case KeyEvent::KEY_d: {
-      if (!engine_->GetIsYPointSelected()  && !engine_->GetIsGameOver()) {
-        if (currentRock == nullptr || currentRock->IsSlowedDown()) {
+      if (!engine_->GetIsYPointSelected()  && !engine_->GetIsSetOver()) {
+        // if the current rock went out of bounds or they are all stable at their positions.
+        if (currentRock == nullptr || engine_->AllRocksAreSlowed()) {
           engine_->SetYPoint(y_position);
           engine_->SetIsYPointSelected(true);
           should_show_placement = false;
@@ -124,9 +120,10 @@ void MyApp::keyDown(KeyEvent event){
       }
       break;
     }
+      // angle
     case KeyEvent::KEY_a: {
       if (use_key && engine_->GetIsYPointSelected()
-          && !engine_->GetIsLaunched()  && !engine_->GetIsGameOver()) {
+          && !engine_->GetIsLaunched()  && !engine_->GetIsSetOver()) {
         angle_y_point = y_position - currentRock->GetPosition().GetY();
         is_angle_set = true;
         should_show_angle = false;
@@ -136,23 +133,26 @@ void MyApp::keyDown(KeyEvent event){
   }
   }
 
-/// mouse click controls the power gage.
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
   if(is_start_screen) {
+    // choose options, default options are already chosen
     ChooseOptions(event);
   }
-  if(is_game_over && sets < 3) {
-    if(event.getY() > 550) {
-      sets++;
-      engine_->Reset();
+  if(is_set_over && sets < 3) {
+    // user presses continue
+    if (event.getY() > 550) {
+      ApplyScore();
     }
   }
+  // user is in the game
   if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
     selected_power = power;
     currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().GetX() * 1000 - event.getPos().x * 1000)) ,
                                                 static_cast<float32>((event.getPos().y * 1000
                                                                       - currentRock->GetPosition().GetY() * 1000))},
                                                currentRock->GetBody()->GetWorldCenter());
+
+    // update variables
     engine_->SetIsLaunched(true);
     engine_->SetIsYPointSelected(false);
     is_angle_set = true;
@@ -177,6 +177,7 @@ void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm
   const auto texture = cinder::gl::Texture::create(surface);
   cinder::gl::draw(texture, locp);
 }
+
 
 void MyApp::UpdateAttributes() {
   int range = board->GetLowerSideLine() - board->GetUpperSideLine() - (2 * kRange);
@@ -222,6 +223,7 @@ void MyApp::DrawAttributes() {
     }
   }
 }
+
 void MyApp::DrawGameOver() {
   PrintText("SET OVER", {1000, 1000} , {1000, 200}, false);
   std::string winner;
@@ -232,6 +234,7 @@ void MyApp::DrawGameOver() {
      score = std::to_string(engine_->GetWinnerScore());
     if (engine_->GetWinner() == engine::WinnerState::YellowWins) {
       winner = "YELLOW WINS ";
+
     } else {
       winner = "RED WINS ";
     }
@@ -239,9 +242,8 @@ void MyApp::DrawGameOver() {
   PrintText(winner, {1000, 1000} , {500, 400} , false);
   PrintText(score, {1000, 1000} , {700, 400}, false);
   PrintText("CONTINUE", {1000, 1000} , {1000, 600}, false);
-
-
 }
+
 void MyApp::DrawStartScreen() {
   PrintText("CLICK ON YOUR OPTION", {1800, 500}, {1000, 100}, false);
   // mouse or keys
@@ -255,6 +257,7 @@ void MyApp::DrawStartScreen() {
   // to move on
   PrintText("NEXT", {1500, 500}, {1000, 600}, false);
 }
+
 void MyApp::ChooseOptions(cinder::app::MouseEvent event) {
   if(event.getY() < 450 && event.getY() > 350) {
     if (event.getX() < 1000) {
@@ -278,5 +281,29 @@ void MyApp::ChooseOptions(cinder::app::MouseEvent event) {
   if (event.getY() > 550) {
     is_start_screen = false;
   }
+}
+
+void MyApp::DrawScore() {
+  PrintText(r_score, {1500, 500}, {100, 650}, false);
+  PrintText(y_score, {1500, 500}, {100, 750}, false);
+
+}
+
+void MyApp::ApplyScore() {
+  sets++;
+  if (engine_->GetWinner() == engine::WinnerState::YellowWins) {
+    y_score+= " " +  std::to_string(engine_->GetWinnerScore());
+    r_score+=" 0";
+
+  } else if(engine_->GetWinner() == engine::WinnerState::RedWins){
+    r_score+= " " +  std::to_string(engine_->GetWinnerScore());
+    y_score+=" 0";
+  } else {
+    // situation of tie
+    r_score+= " 0";
+    y_score+= " 0";
+  }
+  // reset the engine
+  engine_->Reset();
 }
 }  // namespace myapp

@@ -16,7 +16,7 @@ engine::engine(b2World* input_world, Board* input_board) {
   is_y_point_selected = false;
   board = input_board;
   num_launches = 0;
-  is_game_over = false;
+  is_set_over = false;
   winner = WinnerState::NoWinner;
   use_ob = true;
 }
@@ -33,7 +33,7 @@ void engine::SetIsLaunched(bool input) {
 void engine::Step() {
   if (num_launches >= (2 * kTurns) &&
       (current_rock == nullptr || current_rock->IsCompletelyStopped())) {
-    is_game_over = true;
+    is_set_over = true;
     UpdateRocksInHouse();
     winner = GetWinner();
     return;
@@ -43,7 +43,7 @@ void engine::Step() {
     CheckOutOfBoundsVertical();
   }
   if((current_rock == nullptr && is_y_point_selected)
-      || (is_y_point_selected && is_launched && AllRocksAreStopped())) {
+      || (is_y_point_selected && is_launched && AllRocksAreSlowed())) {
 
     Rock* rock = new Rock(world, {board->GetFrontLine(),  y_point}, is_red_turn);
     CreateRock(rock);
@@ -176,7 +176,7 @@ engine::WinnerState engine::GetWinner() {
 void engine::UpdateNumLaunches() {
   num_launches++;
 }
-bool engine::AllRocksAreStopped() {
+bool engine::AllRocksAreSlowed() {
   for (Rock* rock: rocks) {
     if (!rock->IsSlowedDown()) {
       return false;
@@ -191,7 +191,7 @@ void engine::Reset() {
   }
   rocks.clear();
   num_launches = 0;
-  is_game_over = false;
+  is_set_over = false;
 }
 void engine::SetUseOB(bool input) {
   use_ob = input;

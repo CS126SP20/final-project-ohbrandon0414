@@ -52,11 +52,11 @@ class engine {
   Rock* GetClosestRockFromTee(std::vector<Rock*> list);
 
 
-  bool GetIsGameOver() {return is_game_over;}
+  bool GetIsSetOver() {return is_set_over;}
 
   void UpdateNumLaunches();
 
-  bool AllRocksAreStopped();
+  bool AllRocksAreSlowed();
 
   void SetUseOB(bool input);
 
@@ -82,7 +82,7 @@ class engine {
   int num_launches;
   int kTurns = 5;
   WinnerState winner;
-  bool is_game_over;
+  bool is_set_over;
   bool use_ob;
 };
 

@@ -45,7 +45,7 @@ void Board::Display() {
   cinder::gl::color(1,1,1);
   cinder::gl::drawSolidCircle(tee, 100);
 
-  cinder::gl::color(0.9,0,0);
+  cinder::gl::color(0.9f,0,0);
   cinder::gl::drawSolidCircle(tee, 50);
 
   cinder::gl::color(1,1,1);
