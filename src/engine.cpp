@@ -86,7 +86,8 @@ void engine::RemoveRock(Rock* rock) {
   if (rock == current_rock) {
     current_rock = nullptr;
   }
-  rocks.erase(std::remove(rocks.begin(), rocks.end(), rock), rocks.end());
+  rocks.erase(std::remove(rocks.begin(),
+                          rocks.end(), rock), rocks.end());
   delete (rock);
 }
 
@@ -184,13 +185,14 @@ bool engine::AllRocksAreStopped() {
   return true;
 }
 
-
-
-
-
-
-
-void engine::Reset() {}
+void engine::Reset() {
+  for(Rock* temp: rocks) {
+    delete temp;
+  }
+  rocks.clear();
+  num_launches = 0;
+  is_game_over = false;
+}
 void engine::SetUseOB(bool input) {
   use_ob = input;
 }

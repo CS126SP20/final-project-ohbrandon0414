@@ -22,6 +22,7 @@ class MyApp : public cinder::app::App {
   void DrawGameOver();
   void DrawStartScreen();
  private:
+  void ChooseOptions(cinder::app::MouseEvent event);
   void PrintText(const std::string& text, const cinder::ivec2& size,
                  const cinder::vec2& loc, bool changer);
   bool is_angle_set;

@@ -80,7 +80,7 @@ class engine {
   bool is_y_point_selected;
   Board* board;
   int num_launches;
-  int kTurns = 3;
+  int kTurns = 5;
   WinnerState winner;
   bool is_game_over;
   bool use_ob;

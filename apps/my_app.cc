@@ -23,6 +23,7 @@ b2World* m_world;
 Board* board;
 engine* engine_;
 Rock* currentRock;
+int sets = 0;
 
 
 
@@ -44,11 +45,10 @@ void MyApp::setup() {
 }
 
 void MyApp::update() {
+  is_game_over = engine_->GetIsGameOver();
+  std::cout<<"\n"<<is_game_over;
   if (!is_game_over) {
     engine_->Step();
-    if(engine_->GetIsGameOver()) {
-      is_game_over = true;
-    }
     UpdateAttributes();
     // updates the current rock with in this file
     currentRock = engine_->GetCurrentRock();
@@ -139,28 +139,13 @@ void MyApp::keyDown(KeyEvent event){
 /// mouse click controls the power gage.
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
   if(is_start_screen) {
-      if(event.getY() < 450 && event.getY() > 350) {
-        if (event.getX() < 1000) {
-          use_mouse = true;
-          use_key = false;
-        }
-        if(event.getX() > 1000) {
-          use_key = true;
-          use_mouse = false;
-        }
-      }
-      if (event.getY() < 550 && event.getY() > 450) {
-        if (event.getX() < 1000){
-          use_ob = true;
-        }
-        if (event.getX() > 1000){
-          use_ob = false;
-        }
-        engine_->SetUseOB(use_ob);
-      }
-      if (event.getY() > 550) {
-        is_start_screen = false;
-      }
+    ChooseOptions(event);
+  }
+  if(is_game_over && sets < 3) {
+    if(event.getY() > 550) {
+      sets++;
+      engine_->Reset();
+    }
   }
   if (engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()) {
     selected_power = power;
@@ -238,34 +223,60 @@ void MyApp::DrawAttributes() {
   }
 }
 void MyApp::DrawGameOver() {
-  PrintText("Set Over", {1000, 1000} , {1000, 300}, false);
+  PrintText("SET OVER", {1000, 1000} , {1000, 200}, false);
   std::string winner;
   std::string score;
   if (engine_->GetWinner() == engine::WinnerState::NoWinner) {
-    winner = "Tie";
+    winner = "TIE";
   } else {
      score = std::to_string(engine_->GetWinnerScore());
     if (engine_->GetWinner() == engine::WinnerState::YellowWins) {
-      winner = "Yellow:";
+      winner = "YELLOW WINS ";
     } else {
-      winner = "Red:";
+      winner = "RED WINS ";
     }
   }
-  PrintText(winner, {1000, 1000} , {800, 500} , false);
-  PrintText(score, {1000, 1000} , {1000, 500}, false);
+  PrintText(winner, {1000, 1000} , {500, 400} , false);
+  PrintText(score, {1000, 1000} , {700, 400}, false);
+  PrintText("CONTINUE", {1000, 1000} , {1000, 600}, false);
+
 
 }
 void MyApp::DrawStartScreen() {
   PrintText("CLICK ON YOUR OPTION", {1800, 500}, {1000, 100}, false);
+  // mouse or keys
   PrintText("USE: ", {1500, 500}, {600, 400}, false);
   PrintText("MOUSE", {1500, 500}, {900, 400}, use_mouse);
   PrintText("KEYS", {1500, 500}, {1200, 400}, use_key);
+  // out of bounds yes or no
   PrintText("OUT OF BOUNDS: ", {1500, 500}, {600, 500}, false);
   PrintText("YES", {1500, 500}, {1000, 500}, use_ob == true);
   PrintText("NO", {1500, 500}, {1200, 500}, use_ob == false);
-
+  // to move on
   PrintText("NEXT", {1500, 500}, {1000, 600}, false);
-
-
+}
+void MyApp::ChooseOptions(cinder::app::MouseEvent event) {
+  if(event.getY() < 450 && event.getY() > 350) {
+    if (event.getX() < 1000) {
+      use_mouse = true;
+      use_key = false;
+    }
+    if(event.getX() > 1000) {
+      use_key = true;
+      use_mouse = false;
+    }
+  }
+  if (event.getY() < 550 && event.getY() > 450) {
+    if (event.getX() < 1000){
+      use_ob = true;
+    }
+    if (event.getX() > 1000){
+      use_ob = false;
+    }
+    engine_->SetUseOB(use_ob);
+  }
+  if (event.getY() > 550) {
+    is_start_screen = false;
+  }
 }
 }  // namespace myapp
