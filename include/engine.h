@@ -60,6 +60,18 @@ class engine {
 
   void SetUseOB(bool input);
 
+  bool AllRocksAreStopped();
+
+  bool IsLastRockLaunched() {return is_last_rock_launched;}
+
+  void UpdateRedLeft();
+
+  void UpdateYellowLeft();
+
+  int GetRedLeft() {return red_left;}
+
+  int GetYellowLeft() {return yellow_left;}
+
   enum class WinnerState{
     RedWins,
     YellowWins,
@@ -80,10 +92,13 @@ class engine {
   bool is_y_point_selected;
   Board* board;
   int num_launches;
-  int kTurns = 5;
+  int kTurns = 2;
   WinnerState winner;
   bool is_set_over;
   bool use_ob;
+  int red_left;
+  int yellow_left;
+  bool is_last_rock_launched;
 };
 
 #endif  // FINALPROJECT_ENGINE_H

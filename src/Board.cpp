@@ -7,7 +7,7 @@
 #include <engine.h>
 #include <cinder/gl/wrapper.h>
 
-Board::Board(b2World *world) {
+Board::Board(b2World *world, bool use_ob) {
   //a static body
   b2BodyDef myBodyDef;
   myBodyDef.type = b2_staticBody;
@@ -22,10 +22,13 @@ Board::Board(b2World *world) {
   myFixtureDef.shape = &polygonShape;
 
   //add four walls to the static body
-  polygonShape.SetAsBox( kWidth, 1, b2Vec2(kx, ky), 0);//ceiling
-  staticBody->CreateFixture(&myFixtureDef);
-  polygonShape.SetAsBox( kWidth, 1, b2Vec2(kx, ky + kHeight), 0);//ground
-  staticBody->CreateFixture(&myFixtureDef);
+  if(!use_ob) {
+    polygonShape.SetAsBox( kWidth, 1, b2Vec2(kx, ky), 0);//ceiling
+    staticBody->CreateFixture(&myFixtureDef);
+    polygonShape.SetAsBox( kWidth, 1, b2Vec2(kx, ky + kHeight), 0);//ground
+    staticBody->CreateFixture(&myFixtureDef);
+  }
+
   polygonShape.SetAsBox( 1, kHeight, b2Vec2(kx, ky + kHeight), 0);//left wall
   staticBody->CreateFixture(&myFixtureDef);
   polygonShape.SetAsBox( 1, kHeight, b2Vec2(kx + kWidth, ky + kHeight), 0);//right wall

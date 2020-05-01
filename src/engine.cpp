@@ -19,6 +19,9 @@ engine::engine(b2World* input_world, Board* input_board) {
   is_set_over = false;
   winner = WinnerState::NoWinner;
   use_ob = true;
+  red_left = kTurns;
+  yellow_left = kTurns;
+  is_last_rock_launched = false;
 }
 
 void engine::CreateRock(Rock* rock) {
@@ -27,12 +30,13 @@ void engine::CreateRock(Rock* rock) {
 }
 
 void engine::SetIsLaunched(bool input) {
+  current_rock->SetIsLaunched(true);
   is_launched = input;
 }
 
 void engine::Step() {
   if (num_launches >= (2 * kTurns) &&
-      (current_rock == nullptr || current_rock->IsCompletelyStopped())) {
+      (current_rock == nullptr || AllRocksAreStopped())) {
     is_set_over = true;
     UpdateRocksInHouse();
     winner = GetWinner();
@@ -41,6 +45,10 @@ void engine::Step() {
   if (current_rock != nullptr && use_ob) {
     CheckOutOfBoundsHorizontal();
     CheckOutOfBoundsVertical();
+  }
+  if (num_launches >= (2 * kTurns)) {
+    is_last_rock_launched = true;
+    return;
   }
   if((current_rock == nullptr && is_y_point_selected)
       || (is_y_point_selected && is_launched && AllRocksAreSlowed())) {
@@ -57,13 +65,16 @@ void engine::Step() {
 void engine::SetIsYPointSelected(bool input) {
   is_y_point_selected = input;
 }
-void engine::SetYPoint(int input) {
+void engine::SetYPoint(int input){
   y_point = input;
 }
 
 void engine::CheckOutOfBoundsHorizontal() {
   for (Rock* temp: rocks) {
-    if (temp->GetPosition().GetX() >= board->GetBackLine()) {
+    float x_pos = temp->GetPosition().GetX();
+    if (x_pos >= board->GetBackLine() || (temp->IsLaunched()
+             && temp->IsSlowedDown()
+            && x_pos < board->GetTeePoint().GetX() - 2 * board->GetHouseRadius())) {
       RemoveRock(temp);
       break;
     }
@@ -73,9 +84,10 @@ void engine::CheckOutOfBoundsHorizontal() {
 void engine::CheckOutOfBoundsVertical() {
   for (Rock* temp: rocks) {
     float y_pos = temp->GetPosition().GetY();
-    float radius = temp->GetRadius() + 10;
+    float radius = temp->GetRadius();
 
-    if (y_pos + radius >= board->GetLowerSideLine() || y_pos - radius <= board->GetUpperSideLine()) {
+    if (y_pos + radius >= board->GetLowerSideLine()
+        || y_pos - radius <= board->GetUpperSideLine()) {
       RemoveRock(temp);
       break;
     }
@@ -91,10 +103,6 @@ void engine::RemoveRock(Rock* rock) {
   delete (rock);
 }
 
-
-void engine::GetRocksInHouse() {
-
-}
 int engine::GetWinnerScore() {
   int count = 0;
 
@@ -186,13 +194,34 @@ bool engine::AllRocksAreSlowed() {
 }
 
 void engine::Reset() {
+  current_rock = nullptr;
   for(Rock* temp: rocks) {
     delete temp;
   }
   rocks.clear();
   num_launches = 0;
   is_set_over = false;
+  yellow_left = kTurns;
+  red_left = kTurns;
+  rocks_in_house_red.clear();
+  rocks_in_house_other.clear();
+  is_last_rock_launched = false;
+  is_red_turn = !is_red_turn;
 }
 void engine::SetUseOB(bool input) {
   use_ob = input;
+}
+void engine::UpdateRedLeft() {
+  red_left--;
+}
+void engine::UpdateYellowLeft() {
+  yellow_left--;
+}
+bool engine::AllRocksAreStopped() {
+  for (Rock* rock: rocks) {
+    if (!rock->IsCompletelyStopped()) {
+      return false;
+    }
+  }
+  return true;
 }

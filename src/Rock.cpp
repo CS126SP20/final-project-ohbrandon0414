@@ -12,11 +12,14 @@
 Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   m_body = nullptr;
   is_red = red;
+  is_launched = false;
 
   //set up dynamic body, store in class variable
   b2BodyDef myBodyDef;
   myBodyDef.type = b2_dynamicBody;
-  myBodyDef.linearDamping = 0.1f;
+  myBodyDef.linearDamping = 0.013f;
+//  myBodyDef.angularVelocity = 1000;
+//  myBodyDef.angularDamping = 1;
   myBodyDef.position.Set(loc.x, loc.y);
   m_body = world->CreateBody(&myBodyDef);
 
@@ -40,6 +43,9 @@ void Rock::Display() {
   if (is_red) {
     cinder::gl::color(1,0,0);
   }
+//  auto img = loadImage( ci::app::loadAsset( "djohnson.jpg" ) );
+//  const auto texture = cinder::gl::Texture::create(img);
+//  cinder::gl::draw(texture);
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius / 2);
 }
 

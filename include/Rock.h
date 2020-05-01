@@ -32,6 +32,8 @@ class Rock {
     /// checks if the rock was already launched
     bool IsLaunched() {return is_launched;}
 
+    void SetIsLaunched(bool input) {is_launched = input;}
+
     /// checks if the rocks completely stopped.
     bool IsSlowedDown();
 

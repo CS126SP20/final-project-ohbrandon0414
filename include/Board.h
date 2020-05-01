@@ -11,7 +11,7 @@
 #include <Location.h>
 class Board {
  public:
-  Board(b2World* world);
+  Board(b2World* world, bool use_ob);
 
 
   float GetFrontLine() {return front_line;}
