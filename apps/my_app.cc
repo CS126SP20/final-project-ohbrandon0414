@@ -54,8 +54,8 @@ void MyApp::update() {
     // updates the current rock with in this file
     currentRock = engine_->GetCurrentRock();
 
-    for( int i = 0; i < 20; ++i ){
-      m_world->Step( 1 / 10.0f, 7, 10 );
+    for( int i = 0; i < 30; ++i ){
+      m_world->Step( 1 / 100.0f, 7, 10 );
     }
   }
 }
@@ -222,6 +222,7 @@ void MyApp::UpdateAttributes() {
 }
 
 void MyApp::DrawAttributes() {
+  if (engine_->IsLastRockLaunched()) {return;}
   if (use_key && should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
     cinder::gl::color(0,0,0);
     cinder::gl::drawSolidCircle({100, y_position}, 25);
@@ -233,7 +234,7 @@ void MyApp::DrawAttributes() {
     return;
   }
 
-  if (should_show_angle && !engine_->IsLastRockLaunched()) {
+  if (should_show_angle) {
     if (use_key) {
       cinder::gl::color(0,0,0);
       cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
@@ -312,7 +313,7 @@ void MyApp::ChooseOptions(cinder::app::MouseEvent event) {
   }
   if (event.getY() > 550) {
     board = new Board(m_world, use_ob);
-    engine_ = new engine(m_world, board);
+    engine_ = new engine(board);
     engine_->SetUseOB(use_ob);
     is_start_screen = false;
   }

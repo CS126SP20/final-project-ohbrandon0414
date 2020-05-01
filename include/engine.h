@@ -10,7 +10,7 @@
 
 class engine {
  public:
-  explicit engine(b2World* input_world, Board* input_board);
+  engine(Board* input_board);
 
   /// creates a rock with in the game
   void CreateRock(Rock* rock);
@@ -77,6 +77,8 @@ class engine {
     YellowWins,
     NoWinner
   };
+
+  void SetWinner();
 
   engine::WinnerState GetWinner();
 

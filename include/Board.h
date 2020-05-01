@@ -13,7 +13,6 @@ class Board {
  public:
   Board(b2World* world, bool use_ob);
 
-
   float GetFrontLine() {return front_line;}
 
   float GetBackLine() {return back_line;}
@@ -28,6 +27,7 @@ class Board {
 
   float GetHouseRadius() {return house_radius;}
 
+  b2World* GetWorld() {return m_world;}
 
  private:
   float kx = 0;
@@ -37,6 +37,7 @@ class Board {
   float front_line = 100.0f;
   float back_line = 1800.0f;
   float house_radius = 150;
+  b2World* m_world;
 
   const cinder::vec2 tee = {1600, 400};
 };

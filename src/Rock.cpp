@@ -17,7 +17,7 @@ Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   //set up dynamic body, store in class variable
   b2BodyDef myBodyDef;
   myBodyDef.type = b2_dynamicBody;
-  myBodyDef.linearDamping = 0.013f;
+  myBodyDef.linearDamping = 0.1f;
 //  myBodyDef.angularVelocity = 1000;
 //  myBodyDef.angularDamping = 1;
   myBodyDef.position.Set(loc.x, loc.y);
@@ -50,7 +50,7 @@ void Rock::Display() {
 }
 
 bool Rock::IsSlowedDown() {
-  return m_body->GetLinearVelocity().x <= 3;
+  return m_body->GetLinearVelocity().x <= 2 && m_body->GetLinearVelocity().y <= 2;
 }
 Location Rock::GetPosition() {
   return {m_body->GetPosition().x, m_body->GetPosition().y};
@@ -58,4 +58,11 @@ Location Rock::GetPosition() {
 Rock::~Rock() {
   m_body->GetWorld()->DestroyBody(m_body);
 }
-bool Rock::IsCompletelyStopped() { return m_body->GetLinearVelocity() == b2Vec2_zero; }
+bool Rock::IsCompletelyStopped() {
+  if(m_body->GetLinearVelocity().x <= 0.5
+      && m_body->GetLinearVelocity().y <= 0.5 )  {
+    m_body->SetLinearVelocity(b2Vec2_zero);
+    return true;
+  }
+  return false;
+}

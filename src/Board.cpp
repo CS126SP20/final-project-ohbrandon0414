@@ -9,6 +9,7 @@
 
 Board::Board(b2World *world, bool use_ob) {
   //a static body
+  m_world = world;
   b2BodyDef myBodyDef;
   myBodyDef.type = b2_staticBody;
   myBodyDef.position.Set(0, 0);

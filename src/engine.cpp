@@ -8,13 +8,13 @@
 #include <Location.h>
 
 
-engine::engine(b2World* input_world, Board* input_board) {
-  world = input_world;
+engine::engine(Board* input_board) {
+  board = input_board;
+  world = board->GetWorld();
   current_rock = nullptr;
   is_launched = false;
   is_red_turn = true;
   is_y_point_selected = false;
-  board = input_board;
   num_launches = 0;
   is_set_over = false;
   winner = WinnerState::NoWinner;
@@ -30,7 +30,7 @@ void engine::CreateRock(Rock* rock) {
 }
 
 void engine::SetIsLaunched(bool input) {
-  current_rock->SetIsLaunched(true);
+  current_rock->SetIsLaunched(input);
   is_launched = input;
 }
 
@@ -39,7 +39,7 @@ void engine::Step() {
       (current_rock == nullptr || AllRocksAreStopped())) {
     is_set_over = true;
     UpdateRocksInHouse();
-    winner = GetWinner();
+    SetWinner();
     return;
   }
   if (current_rock != nullptr && use_ob) {
@@ -163,22 +163,31 @@ Rock* engine::GetClosestRockFromTee(std::vector<Rock*> list) {
   }
   return winning_rock;
 }
-engine::WinnerState engine::GetWinner() {
+
+void engine::SetWinner() {
   if(rocks_in_house_red.empty() && rocks_in_house_other.empty()) {
-    return engine::WinnerState::NoWinner;
+    winner = engine::WinnerState::NoWinner;
+    return;
   }
   if (rocks_in_house_other.empty()) {
-    return engine::WinnerState::RedWins;
+    winner = engine::WinnerState::RedWins;
+    return;
   }
   if (rocks_in_house_red.empty()) {
-    return engine::WinnerState::YellowWins;
+    winner = engine::WinnerState::YellowWins;
+    return;
   }
 
   if(GetClosestRockFromTee(rocks)->IsRed()) {
-    return engine::WinnerState::RedWins;
+    winner = engine::WinnerState::RedWins;
+    return;
   } else {
-    return engine::WinnerState::YellowWins;
+    winner = engine::WinnerState::YellowWins;
+    return;
   }
+}
+engine::WinnerState engine::GetWinner() {
+  return winner;
 }
 
 void engine::UpdateNumLaunches() {
@@ -225,3 +234,4 @@ bool engine::AllRocksAreStopped() {
   }
   return true;
 }
+
