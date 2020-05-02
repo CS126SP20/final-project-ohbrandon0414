@@ -31,14 +31,18 @@ void engine::CreateRock(Rock* rock) {
 
 void engine::SetIsLaunched(bool input) {
   current_rock->SetIsLaunched(input);
+  // flips the turn.
+  if(input) {
+    is_red_turn = !is_red_turn;
+  }
   is_launched = input;
 }
 
 void engine::Step() {
+  UpdateRocksInHouse();
   if (num_launches >= (2 * kTurns) &&
       (current_rock == nullptr || AllRocksAreStopped())) {
     is_set_over = true;
-    UpdateRocksInHouse();
     SetWinner();
     return;
   }
@@ -55,10 +59,13 @@ void engine::Step() {
 
     Rock* rock = new Rock(world, {board->GetFrontLine(),  y_point}, is_red_turn);
     CreateRock(rock);
+    if(rock->IsRed()) {
+      UpdateRedLeft();
+    } else {
+      UpdateYellowLeft();
+    }
     is_launched = false;
 
-    // flips the turn.
-    is_red_turn = !is_red_turn;
   }
 }
 
@@ -107,7 +114,7 @@ int engine::GetWinnerScore() {
   int count = 0;
 
   if (winner == WinnerState::RedWins) {
-    Rock* yellow = GetClosestRockFromTee(rocks_in_house_other);
+    Rock* yellow = GetClosestRockFromTee(rocks_in_house_yellow);
     if (yellow == nullptr) {
       return rocks_in_house_red.size();
     }
@@ -123,10 +130,10 @@ int engine::GetWinnerScore() {
   if (winner == WinnerState::YellowWins){
     Rock* red = GetClosestRockFromTee(rocks_in_house_red);
     if (red == nullptr) {
-      return rocks_in_house_other.size();
+      return rocks_in_house_yellow.size();
     }
     float r_dis = red->GetPosition().distance(board->GetTeePoint());
-    for(Rock* rock: rocks_in_house_other) {
+    for(Rock* rock: rocks_in_house_yellow) {
       float rock_dis = rock->GetPosition().distance(board->GetTeePoint());
       if(rock_dis <= r_dis) {
         count++;
@@ -143,7 +150,7 @@ void engine::UpdateRocksInHouse() {
       if(rock->IsRed()) {
         rocks_in_house_red.push_back(rock);
       } else {
-        rocks_in_house_other.push_back(rock);
+        rocks_in_house_yellow.push_back(rock);
       }
     }
   }
@@ -165,11 +172,11 @@ Rock* engine::GetClosestRockFromTee(std::vector<Rock*> list) {
 }
 
 void engine::SetWinner() {
-  if(rocks_in_house_red.empty() && rocks_in_house_other.empty()) {
+  if(rocks_in_house_red.empty() && rocks_in_house_yellow.empty()) {
     winner = engine::WinnerState::NoWinner;
     return;
   }
-  if (rocks_in_house_other.empty()) {
+  if (rocks_in_house_yellow.empty()) {
     winner = engine::WinnerState::RedWins;
     return;
   }
@@ -213,7 +220,7 @@ void engine::Reset() {
   yellow_left = kTurns;
   red_left = kTurns;
   rocks_in_house_red.clear();
-  rocks_in_house_other.clear();
+  rocks_in_house_yellow.clear();
   is_last_rock_launched = false;
   is_red_turn = !is_red_turn;
 }

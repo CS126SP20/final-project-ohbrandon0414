@@ -8,17 +8,18 @@
 #include <Rock.h>
 #include <engine.h>
 #include <Board.h>
-#include <mylibrary/example.h>
-
 
 ///Test for Location Object
-TEST_CASE("Location distance test") {
+TEST_CASE("Location test") {
   Location loc = {0, 0};
   REQUIRE(loc.distance({3,4}) == 5);
+  REQUIRE(loc.operator==(Location(0,0)));
+  REQUIRE(loc.GetX() == 0);
+  REQUIRE(loc.GetY() == 0);
 }
 
 ///Test for Rock Object
-TEST_CASE("Simple Rock test") {
+TEST_CASE("Rock test") {
   b2Vec2 gravity(0.0f, 0);
   b2World* m_world = new b2World(gravity);
   Rock* rock = new Rock(m_world, {0, 0}, true);
@@ -116,6 +117,16 @@ TEST_CASE("Engine Test- After Set Ends") {
     engine_->SetWinner();
     REQUIRE(engine_->GetWinner() == engine::WinnerState::NoWinner);
     REQUIRE(engine_->GetWinnerScore() == 0);
+  }
+
+  SECTION("Reset") {
+    engine_->CreateRock(new Rock(m_world, {1400, 300}, true));
+    engine_->CreateRock(new Rock(m_world, {1400, 400}, false));
+    engine_->CreateRock(new Rock(m_world, {1400, 450}, true));
+    engine_->CreateRock(new Rock(m_world, {1400, 500}, false));
+    engine_->Reset();
+    REQUIRE(engine_->GetCurrentRock() == nullptr);
+    REQUIRE(engine_->GetRocks().empty());
   }
 }
 

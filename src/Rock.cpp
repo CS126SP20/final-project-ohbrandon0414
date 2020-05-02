@@ -18,8 +18,6 @@ Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   b2BodyDef myBodyDef;
   myBodyDef.type = b2_dynamicBody;
   myBodyDef.linearDamping = 0.1f;
-//  myBodyDef.angularVelocity = 1000;
-//  myBodyDef.angularDamping = 1;
   myBodyDef.position.Set(loc.x, loc.y);
   m_body = world->CreateBody(&myBodyDef);
 

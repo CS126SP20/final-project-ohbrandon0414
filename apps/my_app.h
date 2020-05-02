@@ -38,21 +38,26 @@ class MyApp : public cinder::app::App {
   void ApplyScore();
 
   /// user gets to choose the options
-  void ChooseOptions(cinder::app::MouseEvent event);
+  void ChooseOptions(const cinder::app::MouseEvent& event);
 
   /// private method to print texts.
   void PrintText(const std::string& text, const cinder::ivec2& size,
                  const cinder::vec2& loc, bool changer);
+
+  void StepBot();
+
+
   bool is_angle_set;
   bool should_show_angle;
   float angle_y_point;
   bool should_show_placement;
   bool is_set_over;
   bool is_start_screen;
-  bool use_key;
-  bool use_mouse;
+  bool is_using_key;
+  bool is_using_mouse;
+
   int kRange = 100;
-  bool use_ob;
+  bool is_using_ob;
 };
 
 }  // namespace myapp

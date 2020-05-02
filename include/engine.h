@@ -37,20 +37,9 @@ class engine {
 
   Rock* GetCurrentRock() {return current_rock;}
 
-  void CheckOutOfBoundsHorizontal();
-
-  void RemoveRock(Rock* remove);
-
-  void CheckOutOfBoundsVertical();
-
-  void UpdateRocksInHouse();
-
-  void GetRocksInHouse();
-
   int GetWinnerScore();
 
   Rock* GetClosestRockFromTee(std::vector<Rock*> list);
-
 
   bool GetIsSetOver() {return is_set_over;}
 
@@ -80,12 +69,30 @@ class engine {
 
   void SetWinner();
 
+  bool GetIsRedTurn() {return is_red_turn;}
+
   engine::WinnerState GetWinner();
 
+
+
  private:
+
+  void CheckOutOfBoundsHorizontal();
+
+  void RemoveRock(Rock* remove);
+
+  void CheckOutOfBoundsVertical();
+
+  void UpdateRocksInHouse();
+
+  std::vector<Rock*> GetRedRocksInHouse() {return rocks_in_house_red;}
+
+  std::vector<Rock*> GetYellowRocksInHouse() {return rocks_in_house_yellow;}
+
+
   std::vector<Rock*> rocks;
   std::vector<Rock*> rocks_in_house_red;
-  std::vector<Rock*> rocks_in_house_other;
+  std::vector<Rock*> rocks_in_house_yellow;
   bool is_launched;
   bool is_red_turn;
   Rock* current_rock;

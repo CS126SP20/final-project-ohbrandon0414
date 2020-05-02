@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <Rock.h>
+#include <bot.h>
 #include <Board.h>
 #include <engine.h>
 #include <Location.h>
@@ -22,26 +23,31 @@ int selected_power;
 b2World* m_world;
 Board* board;
 engine* engine_;
+bot* bot_;
 Rock* currentRock;
 int sets = 0;
 std::string r_score = "R";
 std::string y_score = "Y";
 bool is_red_turn = false;
+bool is_y_point_selected;
+bool is_using_bot;
 
 
 MyApp::MyApp() { }
 
 void MyApp::setup() {
   // basic set up
-  b2Vec2 gravity(0.0f, 0);
+  b2Vec2 gravity(0.0f, 0.0f);
   m_world = new b2World(gravity);
   is_angle_set = false;
   should_show_angle = false;
   should_show_placement = true;
   is_set_over = false;
-  use_key = false;
-  use_mouse = true;
-  use_ob = true;
+  is_using_key = false;
+  is_using_mouse = true;
+  is_using_ob = true;
+  is_y_point_selected = false;
+  is_using_bot = false;
 }
 
 void MyApp::update() {
@@ -49,10 +55,15 @@ void MyApp::update() {
   if (is_start_screen) {return;}
   if (!is_set_over) {
     engine_->Step();
+    currentRock = engine_->GetCurrentRock();
+
+    if(is_using_bot) {
+      StepBot();
+    }
+
     is_set_over = engine_->GetIsSetOver();
     UpdateAttributes();
     // updates the current rock with in this file
-    currentRock = engine_->GetCurrentRock();
 
     for( int i = 0; i < 30; ++i ){
       m_world->Step( 1 / 100.0f, 7, 10 );
@@ -90,7 +101,7 @@ void MyApp::keyDown(KeyEvent event){
   switch (event.getCode()) {
       // power of the rock
       case KeyEvent::KEY_p: {
-      if (use_key && is_angle_set && !engine_->GetIsLaunched() && !engine_->GetIsSetOver()) {
+      if (is_using_key && is_angle_set && !engine_->GetIsLaunched() && !engine_->GetIsSetOver()) {
         // save the power selected to show it
         selected_power = power;
         // apply the force selected
@@ -105,12 +116,13 @@ void MyApp::keyDown(KeyEvent event){
         is_angle_set = false;
         engine_->UpdateNumLaunches();
         is_red_turn = !is_red_turn;
+
       }
       break;
     }
       // placement of the rock
     case KeyEvent::KEY_d: {
-      if (use_key && !engine_->GetIsYPointSelected()  && !engine_->GetIsSetOver()) {
+      if (is_using_key && !engine_->GetIsYPointSelected()  && !engine_->GetIsSetOver()) {
         // if the current rock went out of bounds or they are all stable at their positions.
         if (currentRock == nullptr || engine_->AllRocksAreSlowed()) {
           engine_->SetYPoint(y_position);
@@ -123,7 +135,7 @@ void MyApp::keyDown(KeyEvent event){
     }
       // angle
     case KeyEvent::KEY_a: {
-      if (use_key && engine_->GetIsYPointSelected()
+      if (is_using_key && engine_->GetIsYPointSelected()
           && !engine_->GetIsLaunched()  && !engine_->GetIsSetOver()) {
         angle_y_point = y_position - currentRock->GetPosition().GetY();
         is_angle_set = true;
@@ -135,7 +147,6 @@ void MyApp::keyDown(KeyEvent event){
   }
 
 void MyApp::mouseDown(cinder::app::MouseEvent event) {
-
   if(is_start_screen) {
     // choose options, default options are already chosen
     ChooseOptions(event);
@@ -153,12 +164,16 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
       return;
     }
   }
-  if (use_mouse && !engine_->GetIsYPointSelected() && !is_start_screen) {
+
+  if (is_using_bot && !engine_->GetIsRedTurn()) {return;}
+
+  if (is_using_mouse && !engine_->GetIsYPointSelected() && !is_start_screen) {
     // if the current rock went out of bounds or they are all stable at their positions.
     if (currentRock == nullptr || engine_->AllRocksAreSlowed()) {
       if(event.getY() > 275 && event.getY() < 550){
         engine_->SetYPoint(event.getY());
         engine_->SetIsYPointSelected(true);
+        is_y_point_selected = true;
         should_show_placement = false;
         should_show_angle = true;
         return;
@@ -166,23 +181,18 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
     }
   }
   // user is in the game
-  if (use_mouse && engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()
+  if (is_using_mouse && engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()
       && event.getX() > board->GetFrontLine() + 200) {
     currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().GetX() * 1000 - event.getPos().x * 1000)) ,
                                                 static_cast<float32>((event.getPos().y * 1000
                                                                       - currentRock->GetPosition().GetY() * 1000))},
                                                currentRock->GetBody()->GetWorldCenter());
 
-    if(currentRock->IsRed()) {
-      engine_->UpdateRedLeft();
-    } else {
-      engine_->UpdateYellowLeft();
-    }
-
     // update variables
     engine_->SetIsLaunched(true);
     engine_->SetIsYPointSelected(false);
     is_angle_set = true;
+    is_y_point_selected = false;
     should_show_angle = false;
     should_show_placement = true;
     engine_->UpdateNumLaunches();
@@ -223,39 +233,37 @@ void MyApp::UpdateAttributes() {
 
 void MyApp::DrawAttributes() {
   if (engine_->IsLastRockLaunched()) {return;}
-  if (use_key && should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
+  if (is_using_key && should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
     cinder::gl::color(0,0,0);
     cinder::gl::drawSolidCircle({100, y_position}, 25);
     return;
   }
-  if(use_mouse && should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
+  if(is_using_mouse && should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
     cinder::gl::color(0,0,0);
-    cinder::gl::drawSolidCircle(getMousePos(), 25);
+    cinder::gl::drawSolidCircle(getMousePos() - getWindowPos(), 25);
     return;
   }
 
   if (should_show_angle) {
-    if (use_key) {
+    if (is_using_key) {
       cinder::gl::color(0,0,0);
       cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
                            {currentRock->GetPosition().GetX() + 400, y_position});
     }
-    if (use_mouse) {
+    if (is_using_mouse) {
       cinder::gl::color(0,0,0);
       cinder::gl::drawLine({currentRock->GetPosition().GetX(), currentRock->GetPosition().GetY()},
-                           getMousePos());
+                           getMousePos() - getWindowPos());
     }
   }
 
-  if (use_key && is_angle_set) {
-    if (!engine_->GetIsLaunched()) {
-      std::string str = std::to_string(power + 1);
-      PrintText(str, {1000, 1000}, {1400, 600}, is_red_turn);
-    } else {
-      // prints out the selected power.
-      std::string str2 = std::to_string(selected_power + 1);
-      PrintText(str2, {1000, 1000}, {1400,600}, is_red_turn);
-    }
+  if (is_using_key && is_angle_set && !engine_->GetIsLaunched()) {
+    std::string str = std::to_string(power + 1);
+    PrintText(str, {1000, 1000}, {1400, 600}, is_red_turn);
+  }
+  if (is_using_key && engine_->GetIsLaunched()) {
+    std::string str2 = std::to_string(selected_power + 1);
+    PrintText(str2, {1000, 1000}, {1400,600}, !is_red_turn);
   }
 }
 
@@ -279,42 +287,55 @@ void MyApp::DrawGameOver() {
 }
 
 void MyApp::DrawStartScreen() {
-  PrintText("CLICK ON YOUR OPTION", {1800, 500}, {1500, 300}, false);
+  PrintText("CLICK ON YOUR OPTION", {1600, 500}, {1300, 300}, false);
+  /// pvp or pvc
+  PrintText("AGAINST: ", {1500, 500}, {1050, 500}, false);
+  PrintText("PERSON", {1500, 500}, {1500, 500}, is_using_bot == false);
+  PrintText("COMPUTER", {1500, 500}, {1900, 500}, is_using_bot == true);
   // mouse or keys
   PrintText("USE: ", {1500, 500}, {1300, 600}, false);
-  PrintText("MOUSE", {1500, 500}, {1500, 600}, use_mouse);
-  PrintText("KEYS", {1500, 500}, {1900, 600}, use_key);
+  PrintText("MOUSE", {1500, 500}, {1500, 600}, is_using_mouse);
+  PrintText("KEYS", {1500, 500}, {1900, 600}, is_using_key);
   // out of bounds yes or no
-  PrintText("OUT OF BOUNDS: ", {1500, 500}, {1050, 700}, false);
-  PrintText("YES", {1500, 500}, {1700, 700}, use_ob == true);
-  PrintText("NO", {1500, 500}, {1900, 700}, use_ob == false);
+  PrintText("OUT OF BOUNDS: ", {1300, 500}, {900, 700}, false);
+  PrintText("YES", {1500, 500}, {1600, 700}, is_using_ob == true);
+  PrintText("NO", {1500, 500}, {1900, 700}, is_using_ob == false);
   // to move on
   PrintText("NEXT", {1500, 500}, {1500, 900}, false);
 }
 
-void MyApp::ChooseOptions(cinder::app::MouseEvent event) {
-  if(event.getY() < 450 && event.getY() > 350) {
+void MyApp::ChooseOptions(const cinder::app::MouseEvent& event) {
+  if(event.getY() < 350 && event.getY() > 250) {
     if (event.getX() < 1000) {
-      use_mouse = true;
-      use_key = false;
+      is_using_bot = false;
     }
     if(event.getX() > 1000) {
-      use_key = true;
-      use_mouse = false;
+      is_using_bot = true;
+    }
+  }
+  if(event.getY() < 450 && event.getY() > 350) {
+    if (event.getX() < 1000) {
+      is_using_mouse = true;
+      is_using_key = false;
+    }
+    if(event.getX() > 1000) {
+      is_using_key = true;
+      is_using_mouse = false;
     }
   }
   if (event.getY() < 550 && event.getY() > 450) {
     if (event.getX() < 1000){
-      use_ob = true;
+      is_using_ob = true;
     }
     if (event.getX() > 1000){
-      use_ob = false;
+      is_using_ob = false;
     }
   }
   if (event.getY() > 550) {
-    board = new Board(m_world, use_ob);
+    board = new Board(m_world, is_using_ob);
     engine_ = new engine(board);
-    engine_->SetUseOB(use_ob);
+    bot_ = new bot(board, engine_);
+    engine_->SetUseOB(is_using_ob);
     is_start_screen = false;
   }
 }
@@ -339,6 +360,23 @@ void MyApp::ApplyScore() {
     // situation of tie
     r_score+= " 0";
     y_score+= " 0";
+  }
+}
+void MyApp::StepBot() {
+  if(!engine_->GetIsRedTurn()) {
+    if (!engine_->GetIsYPointSelected()) {
+      engine_->SetYPoint(bot_->GetPlacement());
+      engine_->SetIsYPointSelected(true);
+      return;
+    }
+    if(engine_->GetIsYPointSelected() && !engine_->GetIsLaunched() && !currentRock->IsRed()) {
+      currentRock->GetBody()->ApplyLinearImpulse(bot_->GetForce(), currentRock->GetBody()->GetWorldCenter());
+      std::cout<<currentRock->IsLaunched();
+      engine_->SetIsLaunched(true);
+      engine_->SetIsYPointSelected(false);
+      engine_->UpdateNumLaunches();
+      return;
+    }
   }
 }
 }  // namespace myapp
