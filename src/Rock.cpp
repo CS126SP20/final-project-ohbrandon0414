@@ -33,7 +33,7 @@ Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
 }
 
 void Rock::Display() {
-  // outter part
+  // outer part
   cinder::gl::color(0.5,0.5,0.5);
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius);
 
@@ -41,9 +41,6 @@ void Rock::Display() {
   if (is_red) {
     cinder::gl::color(1,0,0);
   }
-//  auto img = loadImage( ci::app::loadAsset( "djohnson.jpg" ) );
-//  const auto texture = cinder::gl::Texture::create(img);
-//  cinder::gl::draw(texture);
   cinder::gl::drawSolidCircle({m_body->GetPosition().x, m_body->GetPosition().y}, m_radius / 2);
 }
 

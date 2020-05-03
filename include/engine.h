@@ -73,7 +73,9 @@ class engine {
 
   engine::WinnerState GetWinner();
 
+  std::vector<Rock*> GetRedRocksInHouse() {return rocks_in_house_red;}
 
+  std::vector<Rock*> GetYellowRocksInHouse() {return rocks_in_house_yellow;}
 
  private:
 
@@ -84,10 +86,6 @@ class engine {
   void CheckOutOfBoundsVertical();
 
   void UpdateRocksInHouse();
-
-  std::vector<Rock*> GetRedRocksInHouse() {return rocks_in_house_red;}
-
-  std::vector<Rock*> GetYellowRocksInHouse() {return rocks_in_house_yellow;}
 
 
   std::vector<Rock*> rocks;
@@ -101,7 +99,7 @@ class engine {
   bool is_y_point_selected;
   Board* board;
   int num_launches;
-  int kTurns = 2;
+  int kTurns = 5;
   WinnerState winner;
   bool is_set_over;
   bool use_ob;

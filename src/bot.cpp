@@ -12,12 +12,31 @@ bot::bot(Board *input_board, engine *input_engine) {
 }
 
 b2Vec2 bot::GetForce() {
-  Rock* rock = engine_->GetClosestRockFromTee(engine_->GetRocks());
+  // the default x and y for the target
   float x = abs(board->GetTeePoint().GetX() - x_placement);
   float y = board->GetTeePoint().GetY() - y_placement;
-  if(rock->IsRed()) {
-    x = abs(rock->GetPosition().GetX() - x_placement);
-    y = rock->GetPosition().GetY() - y_placement;
+
+  /// the house is empty
+  if (engine_->GetRedRocksInHouse().empty() && engine_->GetYellowRocksInHouse().empty()) {
+    x = board->GetTeePoint().GetX() - x_placement - 50 - board->GetHouseRadius();
+  } else {
+    // the closes rock to the tee
+    Rock* rock = engine_->GetClosestRockFromTee(engine_->GetRocks());
+
+    /// no red rocks but yellow rocks in the house
+    if (engine_->GetRedRocksInHouse().empty()) {
+      x = rock->GetPosition().GetX() - 50 - x_placement;
+      y = rock->GetPosition().GetY() - y_placement;
+    } else {
+      if(rock->IsRed()&& abs(rock->GetPosition().GetY() - board->GetTeePoint().GetY())
+                               < board->GetHouseRadius() / 2) {
+        x = rock->GetPosition().GetX() - x_placement + 100;
+        y = rock->GetPosition().GetY() - y_placement;
+      }
+      else {
+        x = board->GetTeePoint().GetX() - x_placement - 50 - board->GetHouseRadius();
+      }
+    }
   }
   return {x * 1000, y * 1000};
 }

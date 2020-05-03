@@ -25,6 +25,9 @@ class MyApp : public cinder::app::App {
   /// draw the right attributes need to be shown
   void DrawAttributes();
 
+  /// draw the set over screen
+  void DrawSetOver();
+
   /// draw the game over screen
   void DrawGameOver();
 
@@ -41,8 +44,7 @@ class MyApp : public cinder::app::App {
   void ChooseOptions(const cinder::app::MouseEvent& event);
 
   /// private method to print texts.
-  void PrintText(const std::string& text, const cinder::ivec2& size,
-                 const cinder::vec2& loc, bool changer);
+  void PrintText(const std::string& text, int size, const cinder::vec2& loc, bool color_changer, bool centered);
 
   void StepBot();
 
@@ -55,8 +57,10 @@ class MyApp : public cinder::app::App {
   bool is_start_screen;
   bool is_using_key;
   bool is_using_mouse;
+  bool is_game_over;
 
   int kRange = 100;
+  int kSets = 3;
   bool is_using_ob;
 };
 

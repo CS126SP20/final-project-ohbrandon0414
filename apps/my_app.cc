@@ -25,12 +25,12 @@ Board* board;
 engine* engine_;
 bot* bot_;
 Rock* currentRock;
-int sets = 0;
-std::string r_score = "R";
-std::string y_score = "Y";
-bool is_red_turn = false;
-bool is_y_point_selected;
+int sets = 1;
+std::string r_set_score = "R";
+std::string y_set_score = "Y";
 bool is_using_bot;
+int r_total_score = 0;
+int y_total_score = 0;
 
 
 MyApp::MyApp() { }
@@ -46,8 +46,8 @@ void MyApp::setup() {
   is_using_key = false;
   is_using_mouse = true;
   is_using_ob = true;
-  is_y_point_selected = false;
   is_using_bot = false;
+  is_game_over = false;
 }
 
 void MyApp::update() {
@@ -55,13 +55,13 @@ void MyApp::update() {
   if (is_start_screen) {return;}
   if (!is_set_over) {
     engine_->Step();
+    is_set_over = engine_->GetIsSetOver();
     currentRock = engine_->GetCurrentRock();
 
-    if(is_using_bot) {
+    if(is_using_bot && !is_set_over && !engine_->GetIsRedTurn()) {
       StepBot();
     }
 
-    is_set_over = engine_->GetIsSetOver();
     UpdateAttributes();
     // updates the current rock with in this file
 
@@ -77,6 +77,10 @@ void MyApp::draw() {
     return;
   }
   if (is_set_over) {
+    DrawSetOver();
+    return;
+  }
+  if (is_game_over) {
     DrawGameOver();
     return;
   }
@@ -115,8 +119,6 @@ void MyApp::keyDown(KeyEvent event){
         should_show_placement = true;
         is_angle_set = false;
         engine_->UpdateNumLaunches();
-        is_red_turn = !is_red_turn;
-
       }
       break;
     }
@@ -152,35 +154,39 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
     ChooseOptions(event);
     return;
   }
+  // nothing available if the last rock is launched and the set is not over
   if (engine_->IsLastRockLaunched() && !is_set_over) {
     return;
   }
-  if(is_set_over && sets < 5) {
+  // when the set is over
+  if(is_set_over && event.getY() > 550) {
     // user presses continue
-    if (event.getY() > 550) {
-      ApplyScore();
-      engine_->Reset();
-      is_set_over = false;
-      return;
+    ApplyScore();
+    engine_->Reset();
+    is_set_over = false;
+    if (sets > kSets) {
+      is_game_over = true;
     }
+    return;
   }
-
+  // when its the bots turn user cannot use the mouse.
   if (is_using_bot && !engine_->GetIsRedTurn()) {return;}
 
+  // users placement
   if (is_using_mouse && !engine_->GetIsYPointSelected() && !is_start_screen) {
     // if the current rock went out of bounds or they are all stable at their positions.
     if (currentRock == nullptr || engine_->AllRocksAreSlowed()) {
       if(event.getY() > 275 && event.getY() < 550){
         engine_->SetYPoint(event.getY());
         engine_->SetIsYPointSelected(true);
-        is_y_point_selected = true;
         should_show_placement = false;
         should_show_angle = true;
         return;
       }
     }
   }
-  // user is in the game
+
+  // user is in the game get to choose the power or force of the rock
   if (is_using_mouse && engine_->GetIsYPointSelected() && !engine_->GetIsLaunched()
       && event.getX() > board->GetFrontLine() + 200) {
     currentRock->GetBody()->ApplyLinearImpulse({static_cast<float32>(abs(currentRock->GetPosition().GetX() * 1000 - event.getPos().x * 1000)) ,
@@ -192,7 +198,6 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
     engine_->SetIsLaunched(true);
     engine_->SetIsYPointSelected(false);
     is_angle_set = true;
-    is_y_point_selected = false;
     should_show_angle = false;
     should_show_placement = true;
     engine_->UpdateNumLaunches();
@@ -200,12 +205,15 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
 }
 
 /// creates a textbox for the power
-void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm::vec2& loc, bool changer) {
+void MyApp::PrintText(const std::string& text, int size, const glm::vec2& loc, bool changer, bool centered) {
+  auto alignment = cinder::TextBox::LEFT;
+  if(centered) {
+   alignment = cinder::TextBox::CENTER;
+  }
   cinder::gl::color(0.7, changer,0);
   auto box = cinder::TextBox()
-      .alignment(cinder::TextBox::LEFT)
-      .font(cinder::Font("Bauhaus 93", 100))
-      .size(size)
+      .alignment(alignment)
+      .font(cinder::Font("Bauhaus 93", size))
       .text(text);
 
   const auto box_size = box.getSize();
@@ -217,7 +225,9 @@ void MyApp::PrintText(const std::string& text, const glm::ivec2& size, const glm
 
 
 void MyApp::UpdateAttributes() {
+  // range of the placement
   int range = board->GetLowerSideLine() - board->GetUpperSideLine() - (2 * kRange);
+  // time managing of the placement when using keys
   y_position = static_cast<int>((ci::app::getElapsedSeconds()) * 100);
   y_position = y_position % (range * 2);
 
@@ -226,24 +236,35 @@ void MyApp::UpdateAttributes() {
   }
   y_position += board->GetUpperSideLine() + kRange;
 
-  // takes care of the power gage.
+  // takes care of the power gage when using keys
   power = static_cast<int>((ci::app::getElapsedSeconds()) * 3);
   power = power % 10;
 }
 
 void MyApp::DrawAttributes() {
+  // not showing anything if the last rock is launched
   if (engine_->IsLastRockLaunched()) {return;}
-  if (is_using_key && should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
-    cinder::gl::color(0,0,0);
-    cinder::gl::drawSolidCircle({100, y_position}, 25);
-    return;
-  }
-  if(is_using_mouse && should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
-    cinder::gl::color(0,0,0);
-    cinder::gl::drawSolidCircle(getMousePos() - getWindowPos(), 25);
-    return;
+
+  if (is_using_bot && !engine_->GetIsRedTurn()) {return;}
+
+
+  // it is turn to show placement and the current rock is ob or slowed down.
+  if(should_show_placement && (currentRock == nullptr || currentRock->IsSlowedDown())) {
+    // when user is using mouse
+    if (is_using_mouse) {
+      cinder::gl::color(0,0,0);
+      cinder::gl::drawSolidCircle(getMousePos() - getWindowPos(), 25);
+      return;
+    }
+    // when user is using keys
+    if(is_using_key) {
+      cinder::gl::color(0,0,0);
+      cinder::gl::drawSolidCircle({100, y_position}, 25);
+      return;
+    }
   }
 
+  // angle should be shown
   if (should_show_angle) {
     if (is_using_key) {
       cinder::gl::color(0,0,0);
@@ -257,55 +278,66 @@ void MyApp::DrawAttributes() {
     }
   }
 
+  // dont show anything if its bots turn
+  if(is_using_bot && !engine_->GetIsRedTurn()) {return;}
+
+  // the number of the power gage
   if (is_using_key && is_angle_set && !engine_->GetIsLaunched()) {
     std::string str = std::to_string(power + 1);
-    PrintText(str, {1000, 1000}, {1400, 600}, is_red_turn);
+    PrintText(str, 100, {1400, 600}, !engine_->GetIsRedTurn(), false);
   }
+
+  // dont show anything if its bots turn
+  if(is_using_bot && engine_->GetIsRedTurn()) {return;}
+
+  // selected power
   if (is_using_key && engine_->GetIsLaunched()) {
     std::string str2 = std::to_string(selected_power + 1);
-    PrintText(str2, {1000, 1000}, {1400,600}, !is_red_turn);
+    PrintText(str2, 100, {1400,600}, engine_->GetIsRedTurn(), false);
   }
 }
 
-void MyApp::DrawGameOver() {
-  PrintText("SET OVER", {1000, 1000} , {1200, 700}, false);
+void MyApp::DrawSetOver() {
+  PrintText("SET OVER", 120, {750, 50}, false, true);
   std::string winner;
   std::string score;
-  if (engine_->GetWinner() == engine::WinnerState::NoWinner) {
+  engine::WinnerState win_state = engine_->GetWinner();
+  bool red_wins = true;
+  if (win_state == engine::WinnerState::NoWinner) {
     winner = "TIE";
   } else {
-     score = std::to_string(engine_->GetWinnerScore());
-    if (engine_->GetWinner() == engine::WinnerState::YellowWins) {
-      winner = "YELLOW WINS ";
-
+    if (win_state == engine::WinnerState::YellowWins) {
+      winner = "YELLOW\nWINS";
+      red_wins = false;
     } else {
-      winner = "RED WINS ";
+      winner = "RED\nWINS";
     }
   }
-  PrintText(winner, {1000, 1000} , {1200, 1000} , false);
-  PrintText("CONTINUE", {1000, 1000} , {1200, 1200}, false);
+  PrintText(winner, 120, {850, 350} , !red_wins, true);
+  PrintText("CONTINUE", 120, {750, 650}, true, true);
 }
 
 void MyApp::DrawStartScreen() {
-  PrintText("CLICK ON YOUR OPTION", {1600, 500}, {1300, 300}, false);
+  PrintText("CLICK ON YOUR OPTIONS", 120, {400, 60}, false, false);
   /// pvp or pvc
-  PrintText("AGAINST: ", {1500, 500}, {1050, 500}, false);
-  PrintText("PERSON", {1500, 500}, {1500, 500}, is_using_bot == false);
-  PrintText("COMPUTER", {1500, 500}, {1900, 500}, is_using_bot == true);
+  PrintText("AGAINST: ", 100, {300, 300}, false, false);
+  PrintText("PERSON", 100, {700, 300}, is_using_bot == false, false);
+  PrintText("COMPUTER", 100, {1100, 300}, is_using_bot == true, false);
   // mouse or keys
-  PrintText("USE: ", {1500, 500}, {1300, 600}, false);
-  PrintText("MOUSE", {1500, 500}, {1500, 600}, is_using_mouse);
-  PrintText("KEYS", {1500, 500}, {1900, 600}, is_using_key);
+  PrintText("USE: ", 100, {450, 400}, false, false);
+  PrintText("MOUSE", 100, {700, 400}, is_using_mouse, false);
+  PrintText("KEYS", 100, {1100, 400}, is_using_key, false);
   // out of bounds yes or no
-  PrintText("OUT OF BOUNDS: ", {1300, 500}, {900, 700}, false);
-  PrintText("YES", {1500, 500}, {1600, 700}, is_using_ob == true);
-  PrintText("NO", {1500, 500}, {1900, 700}, is_using_ob == false);
+  PrintText("OUT OF BOUNDS: ", 100, {100, 500}, false, false);
+  PrintText("YES", 100, {750, 500}, is_using_ob == true, false);
+  PrintText("NO", 100, {1100, 500}, is_using_ob == false, false);
   // to move on
-  PrintText("NEXT", {1500, 500}, {1500, 900}, false);
+  PrintText("NEXT", 110, {800, 650}, false, true);
 }
 
 void MyApp::ChooseOptions(const cinder::app::MouseEvent& event) {
-  if(event.getY() < 350 && event.getY() > 250) {
+  // against:
+  if(event.getY() < 400 && event.getY() > 250) {
     if (event.getX() < 1000) {
       is_using_bot = false;
     }
@@ -313,7 +345,8 @@ void MyApp::ChooseOptions(const cinder::app::MouseEvent& event) {
       is_using_bot = true;
     }
   }
-  if(event.getY() < 450 && event.getY() > 350) {
+  // using:
+  if(event.getY() < 500 && event.getY() > 400) {
     if (event.getX() < 1000) {
       is_using_mouse = true;
       is_using_key = false;
@@ -323,7 +356,8 @@ void MyApp::ChooseOptions(const cinder::app::MouseEvent& event) {
       is_using_mouse = false;
     }
   }
-  if (event.getY() < 550 && event.getY() > 450) {
+  // out of bounds:
+  if (event.getY() < 600 && event.getY() > 500) {
     if (event.getX() < 1000){
       is_using_ob = true;
     }
@@ -331,7 +365,8 @@ void MyApp::ChooseOptions(const cinder::app::MouseEvent& event) {
       is_using_ob = false;
     }
   }
-  if (event.getY() > 550) {
+  // next:
+  if (event.getY() > 650) {
     board = new Board(m_world, is_using_ob);
     engine_ = new engine(board);
     bot_ = new bot(board, engine_);
@@ -341,29 +376,31 @@ void MyApp::ChooseOptions(const cinder::app::MouseEvent& event) {
 }
 
 void MyApp::DrawScore() {
-  PrintText(r_score, {1500, 500}, {900, 850}, false);
-  PrintText(std::to_string(engine_->GetRedLeft()), {1500, 500}, {800, 850}, false);
-  PrintText(std::to_string(engine_->GetYellowLeft()), {1500, 500}, {800, 950}, true);
-  PrintText(y_score, {1500, 500}, {900, 950}, true);
+  PrintText(std::to_string(engine_->GetRedLeft()), 100, {30, 600}, false, false);
+  PrintText(r_set_score, 100, {90, 600}, false, false);
+  PrintText(std::to_string(engine_->GetYellowLeft()), 100, {30, 700}, true, false);
+  PrintText(y_set_score, 100, {90, 700}, true, false);
 }
 
 void MyApp::ApplyScore() {
   sets++;
+  int score = engine_->GetWinnerScore();
   if (engine_->GetWinner() == engine::WinnerState::YellowWins) {
-    y_score+= " " +  std::to_string(engine_->GetWinnerScore());
-    r_score+=" 0";
-
+    y_set_score += " " +  std::to_string(score);
+    r_set_score +=" 0";
+    y_total_score += score;
   } else if(engine_->GetWinner() == engine::WinnerState::RedWins){
-    r_score+= " " +  std::to_string(engine_->GetWinnerScore());
-    y_score+=" 0";
+    r_set_score += " " +  std::to_string(score);
+    y_set_score +=" 0";
+    r_total_score += score;
   } else {
     // situation of tie
-    r_score+= " 0";
-    y_score+= " 0";
+    r_set_score += " 0";
+    y_set_score += " 0";
   }
 }
+
 void MyApp::StepBot() {
-  if(!engine_->GetIsRedTurn()) {
     if (!engine_->GetIsYPointSelected()) {
       engine_->SetYPoint(bot_->GetPlacement());
       engine_->SetIsYPointSelected(true);
@@ -371,12 +408,29 @@ void MyApp::StepBot() {
     }
     if(engine_->GetIsYPointSelected() && !engine_->GetIsLaunched() && !currentRock->IsRed()) {
       currentRock->GetBody()->ApplyLinearImpulse(bot_->GetForce(), currentRock->GetBody()->GetWorldCenter());
-      std::cout<<currentRock->IsLaunched();
       engine_->SetIsLaunched(true);
       engine_->SetIsYPointSelected(false);
       engine_->UpdateNumLaunches();
       return;
     }
-  }
 }
+void MyApp::DrawGameOver() {
+  ci::gl::clear();
+  std::string game_state = "";
+  bool red_wins = true;
+  if(r_total_score > y_total_score) {
+    game_state = "RED\nWINS";
+  } else if (r_total_score < y_total_score) {
+    game_state = "YELLOW\nWINS";
+    red_wins = false;
+  } else {
+    game_state = "TIE";
+  }
+
+  PrintText("GAME OVER", 150, {650, 100}, false, true);
+  PrintText(game_state, 130, {820, 300}, !red_wins, true);
+  PrintText(std::to_string(r_total_score), 150, {850, 600}, false, true);
+  PrintText(std::to_string(y_total_score), 150, {950, 600}, true, true);
+}
+
 }  // namespace myapp

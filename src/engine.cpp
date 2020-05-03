@@ -145,6 +145,14 @@ int engine::GetWinnerScore() {
 }
 void engine::UpdateRocksInHouse() {
   for (Rock* rock: rocks) {
+    if (std::find(rocks_in_house_red.begin(),
+                  rocks_in_house_red.end(), rock) != rocks_in_house_red.end()) {
+      continue;
+    }
+    if (std::find(rocks_in_house_yellow.begin(),
+                  rocks_in_house_yellow.end(), rock) != rocks_in_house_yellow.end()) {
+      continue;
+    }
     float distance = rock->GetPosition().distance(board->GetTeePoint());
     if (distance <= board->GetHouseRadius()) {
       if(rock->IsRed()) {
@@ -222,6 +230,7 @@ void engine::Reset() {
   rocks_in_house_red.clear();
   rocks_in_house_yellow.clear();
   is_last_rock_launched = false;
+  is_y_point_selected = false;
   is_red_turn = !is_red_turn;
 }
 void engine::SetUseOB(bool input) {
