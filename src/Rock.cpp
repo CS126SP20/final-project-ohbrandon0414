@@ -11,6 +11,7 @@
 
 
 Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
+  is_contact = false;
   m_body = nullptr;
   is_red = red;
   is_launched = false;
@@ -31,6 +32,9 @@ Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   myFixtureDef.density = 5;
   myFixtureDef.restitution = 0.5f;
   m_body->CreateFixture(&myFixtureDef);
+
+  m_numContacts = 0;
+  m_body->SetUserData( this ); //set this Ball object in the body's user data
 }
 
 void Rock::Display() {
@@ -61,4 +65,8 @@ bool Rock::IsCompletelyStopped() {
     return true;
   }
   return false;
+}
+bool Rock::IsContact() {return is_contact;}
+void Rock::SetIsContact(bool input) {
+  is_contact = input;
 }

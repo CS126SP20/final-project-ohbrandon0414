@@ -39,16 +39,28 @@ class Rock {
 
     bool IsCompletelyStopped();
 
+    void SetIsContact(bool input);
+
     Location GetPosition();
 
     ~Rock();
 
+
+  //new implementation for contact state change
+    void startContact() {
+      is_contact = true;
+      m_numContacts++;
+    }
+    void endContact() { m_numContacts--; }
+    bool IsContact();
    private:
+    int m_numContacts;
     b2Body* m_body;
     bool is_red;
     // radius of the rock
     float m_radius = 25;
     bool is_launched;
+    bool is_contact;
 };
 
 #endif  // FINALPROJECT_ROCK_H

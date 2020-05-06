@@ -162,13 +162,37 @@ void engine::UpdateRocksInHouse() {
       }
     }
   }
+
+  if(!rocks_in_house_red.empty()) {
+    for (Rock* red_rock: rocks_in_house_red) {
+      float red_distance = red_rock->GetPosition().distance(board->GetTeePoint());
+      if (red_distance > board->GetHouseRadius()) {
+        rocks_in_house_red.erase(std::remove(rocks_in_house_red.begin(),
+                                             rocks_in_house_red.end(), red_rock), rocks_in_house_red.end());
+        break;
+      }
+    }
+  }
+  if(!rocks_in_house_yellow.empty()) {
+    for (Rock* red_rock: rocks_in_house_yellow) {
+      float yellow_distance= red_rock->GetPosition().distance(board->GetTeePoint());
+      if (yellow_distance > board->GetHouseRadius()) {
+        rocks_in_house_yellow.erase(std::remove(rocks_in_house_yellow.begin(),
+                                                rocks_in_house_yellow.end(), red_rock), rocks_in_house_yellow.end());
+        break;
+      }
+    }
+  }
+
+
+
 }
 Rock* engine::GetClosestRockFromTee(std::vector<Rock*> list) {
   float min = FLT_MAX;
-  Rock* winning_rock = nullptr;
   if (list.empty()) {
-    return winning_rock;
+    return nullptr;
   }
+  Rock* winning_rock = nullptr;
   for (Rock* rock: list) {
     float distance = rock->GetPosition().distance(board->GetTeePoint());
     if (distance <= min) {
@@ -259,4 +283,20 @@ bool engine::ShouldPlaySound() {
     return true;
   }
   return false;
+}
+bool engine::IsContact() {
+//  return true;
+  bool contacted = false;
+  for(Rock* rock: rocks) {
+    if(rock->IsContact()) {
+      contacted = true;
+    }
+    rock->SetIsContact(false);
+  }
+  return contacted;
+//  if(current_rock != nullptr && current_rock->IsContact()) {
+//    current_rock->SetIsContact(false);
+//    return true;
+//  }
+//  return false;
 }

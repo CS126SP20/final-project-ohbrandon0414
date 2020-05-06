@@ -28,9 +28,37 @@
  - **4/27/20** Basic starting screen 
    - Basic starting screen has been implemented
    
- - **4/26/20** Options are featured with concept of sets now
+ - **4/28/20** Options are featured with concept of sets now
    - Sets are not implemented
    - Game ends after 3 sets
    - Options could be chosen before the game starts
+   
+ - **4/29/20** Resetting has been implemented
+   - Engine resets after a set is done
+   - Scores are shown at the bottom of the screen
+   - Starting screen with different options are available
+   - ~~Need some solid test cases for rock, engine and board class~~
+   
+ - **5/1/20** Test cases implemented and small issues fixed
+   - Issues with resetting has been addressed
+   - Test cases for different classes have been implemented
+   
+ - **5/2/20** Cpu strategy
+   - A simple cpu strategy and the engine and myapp.cc works accordingly
+   - ~~Need to upgrade the strategies the bot is using~~ 
+   - ~~Need to let the user choose whether to go against person or computer~~
+   
+ - **5/3/20** Developed the cpu strategy
+   - Better operating strategy that is more difficult to beat
+   - Fixed print text to have more parameters available.
+   
+ - **5/4/20** Audio implemented
+   - Background music, sliding sound has been implemented
+   - ~~Would like to make a colliding sound as well~~
+   
+ - **5/4/20** Contact listener finished
+   - Polished the audios to come out at better timings
+   - Applied a contact listener for the colliding sound
+   - Engine has more methods regarding audio
 
 ---

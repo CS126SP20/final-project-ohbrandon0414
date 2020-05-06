@@ -79,6 +79,8 @@ class engine {
 
   bool ShouldPlaySound();
 
+  bool IsContact();
+
  private:
 
   void CheckOutOfBoundsHorizontal();

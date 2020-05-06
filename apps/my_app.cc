@@ -2,18 +2,19 @@
 
 #include "my_app.h"
 
-#include <cinder/gl/gl.h>
+#include <Board.h>
 #include <Box2D/Box2D.h>
+#include <Location.h>
 #include <ObjectArray.h>
-#include <cinder/audio/audio.h>
-
-
-#include <vector>
 #include <Rock.h>
 #include <bot.h>
-#include <Board.h>
+#include <cinder/audio/audio.h>
+#include <cinder/gl/gl.h>
 #include <engine.h>
-#include <Location.h>
+
+#include <vector>
+
+#include "../src/MyContactListener.h"
 namespace myapp {
 
 using cinder::app::KeyEvent;
@@ -34,9 +35,14 @@ int r_total_score = 0;
 int y_total_score = 0;
 
 ci::audio::SourceFileRef rock_sliding = ci::audio::load( ci::app::loadAsset( "rock_slide.mp3"));
+ci::audio::SourceFileRef collide = ci::audio::load( ci::app::loadAsset( "contact.mp3"));
 ci::audio::SourceFileRef background_music = ci::audio::load( ci::app::loadAsset( "beat.mp3"));
 ci::audio::VoiceRef sliding_sound;
 ci::audio::VoiceRef music;
+ci::audio::VoiceRef contact_sound;
+
+
+MyContactListener myContactListenerInstance;
 
 
 MyApp::MyApp() { }
@@ -54,20 +60,22 @@ void MyApp::setup() {
   is_using_ob = true;
   is_using_bot = false;
   is_game_over = false;
-//  sliding_sound = ci::audio::Voice::create(rock_sliding);
-//  sliding_sound->start();
   sliding_sound = ci::audio::Voice::create(rock_sliding);
   music = ci::audio::Voice::create(background_music);
-  std::cout<<music->getVolume();
-//  music->start();
+  contact_sound = ci::audio::Voice::create(collide);
+  m_world->SetContactListener(&myContactListenerInstance);
 }
 
 void MyApp::update() {
-//  if(!music->isPlaying()) {
-//    music->start();
-//  }
   // update the state if the set if over or not
-  if (is_start_screen) {return;}
+  if (is_start_screen || is_game_over || is_set_over) {
+    if(!music->isPlaying()) {
+      music->start();
+    }
+    return;
+  } else {
+    music->pause();
+  }
   if (!is_set_over) {
     engine_->Step();
     is_set_over = engine_->GetIsSetOver();
@@ -79,6 +87,7 @@ void MyApp::update() {
       sliding_sound->stop();
     }
 
+
     if(is_using_bot && !is_set_over && !engine_->GetIsRedTurn()) {
       StepBot();
     }
@@ -86,8 +95,13 @@ void MyApp::update() {
     UpdateAttributes();
     // updates the current rock with in this file
 
+
     for( int i = 0; i < 10; ++i ){
       m_world->Step( 1 / 100.0f, 7, 10 );
+    }
+    if(engine_->IsContact()) {
+      contact_sound->stop();
+      contact_sound->start();
     }
   }
 }
