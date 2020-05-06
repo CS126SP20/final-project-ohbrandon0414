@@ -77,6 +77,8 @@ class engine {
 
   std::vector<Rock*> GetYellowRocksInHouse() {return rocks_in_house_yellow;}
 
+  bool ShouldPlaySound();
+
  private:
 
   void CheckOutOfBoundsHorizontal();

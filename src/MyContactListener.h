@@ -1,0 +1,12 @@
+//
+// Created by ohbra on 5/5/2020.
+//
+
+#ifndef FINALPROJECT_MYCONTACTLISTENER_H
+#define FINALPROJECT_MYCONTACTLISTENER_H
+
+class MyContactListener {
+
+};
+
+#endif  // FINALPROJECT_MYCONTACTLISTENER_H

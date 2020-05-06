@@ -5,6 +5,7 @@
 #include <cinder/gl/gl.h>
 #include <Box2D/Box2D.h>
 #include <ObjectArray.h>
+#include <cinder/audio/audio.h>
 
 
 #include <vector>
@@ -32,6 +33,11 @@ bool is_using_bot;
 int r_total_score = 0;
 int y_total_score = 0;
 
+ci::audio::SourceFileRef rock_sliding = ci::audio::load( ci::app::loadAsset( "rock_slide.mp3"));
+ci::audio::SourceFileRef background_music = ci::audio::load( ci::app::loadAsset( "beat.mp3"));
+ci::audio::VoiceRef sliding_sound;
+ci::audio::VoiceRef music;
+
 
 MyApp::MyApp() { }
 
@@ -48,15 +54,30 @@ void MyApp::setup() {
   is_using_ob = true;
   is_using_bot = false;
   is_game_over = false;
+//  sliding_sound = ci::audio::Voice::create(rock_sliding);
+//  sliding_sound->start();
+  sliding_sound = ci::audio::Voice::create(rock_sliding);
+  music = ci::audio::Voice::create(background_music);
+  std::cout<<music->getVolume();
+//  music->start();
 }
 
 void MyApp::update() {
+//  if(!music->isPlaying()) {
+//    music->start();
+//  }
   // update the state if the set if over or not
   if (is_start_screen) {return;}
   if (!is_set_over) {
     engine_->Step();
     is_set_over = engine_->GetIsSetOver();
     currentRock = engine_->GetCurrentRock();
+
+    if(engine_->ShouldPlaySound()) {
+        sliding_sound->start();
+    } else {
+      sliding_sound->stop();
+    }
 
     if(is_using_bot && !is_set_over && !engine_->GetIsRedTurn()) {
       StepBot();
@@ -65,7 +86,7 @@ void MyApp::update() {
     UpdateAttributes();
     // updates the current rock with in this file
 
-    for( int i = 0; i < 30; ++i ){
+    for( int i = 0; i < 10; ++i ){
       m_world->Step( 1 / 100.0f, 7, 10 );
     }
   }
@@ -298,7 +319,7 @@ void MyApp::DrawAttributes() {
 }
 
 void MyApp::DrawSetOver() {
-  PrintText("SET OVER", 120, {750, 50}, false, true);
+  PrintText("SET OVER", 120, {800, 50}, false, true);
   std::string winner;
   std::string score;
   engine::WinnerState win_state = engine_->GetWinner();
@@ -313,8 +334,8 @@ void MyApp::DrawSetOver() {
       winner = "RED\nWINS";
     }
   }
-  PrintText(winner, 120, {850, 350} , !red_wins, true);
-  PrintText("CONTINUE", 120, {750, 650}, true, true);
+  PrintText(winner, 120, {900, 300} , !red_wins, true);
+  PrintText("CONTINUE", 120, {800, 650}, true, true);
 }
 
 void MyApp::DrawStartScreen() {
@@ -332,7 +353,7 @@ void MyApp::DrawStartScreen() {
   PrintText("YES", 100, {750, 500}, is_using_ob == true, false);
   PrintText("NO", 100, {1100, 500}, is_using_ob == false, false);
   // to move on
-  PrintText("NEXT", 110, {800, 650}, false, true);
+  PrintText("NEXT", 110, {850, 650}, false, true);
 }
 
 void MyApp::ChooseOptions(const cinder::app::MouseEvent& event) {
@@ -427,10 +448,10 @@ void MyApp::DrawGameOver() {
     game_state = "TIE";
   }
 
-  PrintText("GAME OVER", 150, {650, 100}, false, true);
-  PrintText(game_state, 130, {820, 300}, !red_wins, true);
+  PrintText("GAME OVER", 150, {700, 100}, false, true);
+  PrintText(game_state, 130, {850, 300}, !red_wins, true);
   PrintText(std::to_string(r_total_score), 150, {850, 600}, false, true);
-  PrintText(std::to_string(y_total_score), 150, {950, 600}, true, true);
+  PrintText(std::to_string(y_total_score), 150, {1000, 600}, true, true);
 }
 
 }  // namespace myapp

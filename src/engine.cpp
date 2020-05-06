@@ -232,6 +232,7 @@ void engine::Reset() {
   is_last_rock_launched = false;
   is_y_point_selected = false;
   is_red_turn = !is_red_turn;
+  is_launched = false;
 }
 void engine::SetUseOB(bool input) {
   use_ob = input;
@@ -250,4 +251,12 @@ bool engine::AllRocksAreStopped() {
   }
   return true;
 }
-
+bool engine::ShouldPlaySound() {
+  if(is_launched) {
+    if(current_rock == nullptr || current_rock->IsSlowedDown()) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+}

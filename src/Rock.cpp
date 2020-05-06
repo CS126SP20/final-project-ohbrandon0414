@@ -9,6 +9,7 @@
 #include <cinder/app/App.h>
 #include <cinder/gl/gl.h>
 
+
 Rock::Rock(b2World* world, b2Vec2 loc, bool red) {
   m_body = nullptr;
   is_red = red;

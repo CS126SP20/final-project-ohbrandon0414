@@ -40,8 +40,13 @@ void Board::Display() {
   cinder::gl::color(0.9f, 0.9f, 0.9f);
   cinder::gl::drawSolidRect(cinder::Rectf{kx, ky,kx + kWidth, ky + kHeight});
 
+
+
   cinder::gl::color(1,0,0);
   cinder::gl::drawSolidRect(cinder::Rectf{100, 200, 125, 600});
+
+  cinder::gl::drawSolidRect(cinder::Rectf{1250, 300,1450, 500});
+
 
   cinder::gl::color(0,0,1);
   cinder::gl::drawSolidCircle(tee, house_radius);

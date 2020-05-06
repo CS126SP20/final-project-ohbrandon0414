@@ -15,12 +15,14 @@ class bot {
   bot(Board* input_board, engine* input_engine);
   int GetPlacement();
   b2Vec2 GetForce();
+  bool IsGuarded();
 
  private:
   int y_placement;
   int x_placement;
   Board* board;
   engine* engine_;
+  bool guarded;
 };
 
 #endif  // FINALPROJECT_BOT_H
