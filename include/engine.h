@@ -81,17 +81,11 @@ class engine {
 
   bool IsContact();
 
- private:
-
-  void CheckOutOfBoundsHorizontal();
-
-  void RemoveRock(Rock* remove);
-
   void CheckOutOfBoundsVertical();
-
+  void CheckOutOfBoundsHorizontal();
   void UpdateRocksInHouse();
-
-
+  void RemoveRock(Rock* remove);
+ private:
   std::vector<Rock*> rocks;
   std::vector<Rock*> rocks_in_house_red;
   std::vector<Rock*> rocks_in_house_yellow;
