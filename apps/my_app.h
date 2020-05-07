@@ -46,9 +46,22 @@ class MyApp : public cinder::app::App {
   /// private method to print texts.
   void PrintText(const std::string& text, int size, const cinder::vec2& loc, bool color_changer, bool centered);
 
+  /// method for the bot to make a choice.
   void StepBot();
 
+  /// the range user could put the rock down
+  int kRange = 100;
 
+  /// number of sets to be played
+  int kSets = 3;
+
+  /// if the user is using out of bounds
+  bool is_using_ob;
+
+  /// number of sets that has been played
+  int sets = 1;
+
+  /// simple variables to use for setting up attributes and show them on the screen
   bool is_angle_set;
   bool should_show_angle;
   float angle_y_point;
@@ -58,10 +71,6 @@ class MyApp : public cinder::app::App {
   bool is_using_key;
   bool is_using_mouse;
   bool is_game_over;
-
-  int kRange = 100;
-  int kSets = 3;
-  bool is_using_ob;
 };
 
 }  // namespace myapp

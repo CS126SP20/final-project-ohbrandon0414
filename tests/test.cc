@@ -8,6 +8,7 @@
 #include <Rock.h>
 #include <engine.h>
 #include <Board.h>
+#include <bot.h>
 
 ///Test for Location Object
 TEST_CASE("Location test") {
@@ -127,7 +128,37 @@ TEST_CASE("Engine Test- After Set Ends") {
     engine_->Reset();
     REQUIRE(engine_->GetCurrentRock() == nullptr);
     REQUIRE(engine_->GetRocks().empty());
+    REQUIRE(engine_->GetRedRocksInHouse().empty());
+    REQUIRE(engine_->GetYellowRocksInHouse().empty());
+    REQUIRE(engine_->GetRedLeft() == 5);
+    REQUIRE(engine_->AreAllRocksAreSlowed());
+    REQUIRE(!engine_->GetIsYPointSelected());
   }
+}
+
+///Test for cpu strategy
+TEST_CASE("Bot test") {
+  b2Vec2 gravity(0.0f, 0);
+  b2World* m_world = new b2World(gravity);
+  Board* board = new Board(m_world, true);
+
+  engine* engine_ = new engine(board);
+  bot* bot_ = new bot(board, engine_);
+
+  SECTION("On tee") {
+    engine_->CreateRock(new Rock(m_world, {1600, 400}, true));
+
+    REQUIRE(bot_->GetPlacement() < 500);
+    REQUIRE(bot_->GetPlacement() > 200);
+    REQUIRE(bot_->GetForce().x == 1300000.0f);
+    REQUIRE(bot_->GetForce().y == 59000.0f);
+  }
+
+  SECTION("Empty") {
+    REQUIRE(bot_->GetForce().x == 1300000.0f);
+    REQUIRE(bot_->GetForce().y == 33000.0f);
+  }
+
 }
 
 

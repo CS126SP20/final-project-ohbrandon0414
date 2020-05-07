@@ -56,9 +56,14 @@
    - Background music, sliding sound has been implemented
    - ~~Would like to make a colliding sound as well~~
    
- - **5/4/20** Contact listener finished
+ - **5/5/20** Contact listener finished
    - Polished the audios to come out at better timings
    - Applied a contact listener for the colliding sound
    - Engine has more methods regarding audio
+   
+ - **5/6/20** Wrap up
+   - Polished the audios
+   - Read me and proposal finished
+   - more test cases  
 
 ---

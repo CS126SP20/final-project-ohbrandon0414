@@ -41,7 +41,7 @@ void engine::SetIsLaunched(bool input) {
 void engine::Step() {
   UpdateRocksInHouse();
   if (num_launches >= (2 * kTurns) &&
-      (current_rock == nullptr || AllRocksAreStopped())) {
+      (current_rock == nullptr || AreAllRocksAreStopped())) {
     is_set_over = true;
     SetWinner();
     return;
@@ -55,7 +55,7 @@ void engine::Step() {
     return;
   }
   if((current_rock == nullptr && is_y_point_selected)
-      || (is_y_point_selected && is_launched && AllRocksAreSlowed())) {
+      || (is_y_point_selected && is_launched && AreAllRocksAreSlowed())) {
 
     Rock* rock = new Rock(world, {board->GetFrontLine(),  y_point}, is_red_turn);
     CreateRock(rock);
@@ -163,6 +163,7 @@ void engine::UpdateRocksInHouse() {
     }
   }
 
+  // remove the rocks that are not in the house anymore
   if(!rocks_in_house_red.empty()) {
     for (Rock* red_rock: rocks_in_house_red) {
       float red_distance = red_rock->GetPosition().distance(board->GetTeePoint());
@@ -204,6 +205,7 @@ Rock* engine::GetClosestRockFromTee(std::vector<Rock*> list) {
 }
 
 void engine::SetWinner() {
+  // the house is empty for certain situations
   if(rocks_in_house_red.empty() && rocks_in_house_yellow.empty()) {
     winner = engine::WinnerState::NoWinner;
     return;
@@ -217,6 +219,7 @@ void engine::SetWinner() {
     return;
   }
 
+  // the house is not empty
   if(GetClosestRockFromTee(rocks)->IsRed()) {
     winner = engine::WinnerState::RedWins;
     return;
@@ -232,7 +235,7 @@ engine::WinnerState engine::GetWinner() {
 void engine::UpdateNumLaunches() {
   num_launches++;
 }
-bool engine::AllRocksAreSlowed() {
+bool engine::AreAllRocksAreSlowed() {
   for (Rock* rock: rocks) {
     if (!rock->IsSlowedDown()) {
       return false;
@@ -267,7 +270,7 @@ void engine::UpdateRedLeft() {
 void engine::UpdateYellowLeft() {
   yellow_left--;
 }
-bool engine::AllRocksAreStopped() {
+bool engine::AreAllRocksAreStopped() {
   for (Rock* rock: rocks) {
     if (!rock->IsCompletelyStopped()) {
       return false;
@@ -277,26 +280,18 @@ bool engine::AllRocksAreStopped() {
 }
 bool engine::ShouldPlaySound() {
   if(is_launched) {
-    if(current_rock == nullptr || current_rock->IsSlowedDown()) {
-      return false;
-    }
-    return true;
+    return !(current_rock == nullptr || current_rock->IsSlowedDown());
   }
   return false;
 }
 bool engine::IsContact() {
-//  return true;
   bool contacted = false;
   for(Rock* rock: rocks) {
     if(rock->IsContact()) {
       contacted = true;
     }
+    // reset all the rocks to not be contacted so they dont make sound.
     rock->SetIsContact(false);
   }
   return contacted;
-//  if(current_rock != nullptr && current_rock->IsContact()) {
-//    current_rock->SetIsContact(false);
-//    return true;
-//  }
-//  return false;
 }

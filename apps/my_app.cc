@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "../src/MyContactListener.h"
+#include "MyContactListener.h"
 namespace myapp {
 
 using cinder::app::KeyEvent;
@@ -27,7 +27,7 @@ Board* board;
 engine* engine_;
 bot* bot_;
 Rock* currentRock;
-int sets = 1;
+
 std::string r_set_score = "R";
 std::string y_set_score = "Y";
 bool is_using_bot;
@@ -161,7 +161,7 @@ void MyApp::keyDown(KeyEvent event){
     case KeyEvent::KEY_d: {
       if (is_using_key && !engine_->GetIsYPointSelected()  && !engine_->GetIsSetOver()) {
         // if the current rock went out of bounds or they are all stable at their positions.
-        if (currentRock == nullptr || engine_->AllRocksAreSlowed()) {
+        if (currentRock == nullptr || engine_->AreAllRocksAreSlowed()) {
           engine_->SetYPoint(y_position);
           engine_->SetIsYPointSelected(true);
           should_show_placement = false;
@@ -190,7 +190,7 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
     return;
   }
   // nothing available if the last rock is launched and the set is not over
-  if (engine_->IsLastRockLaunched() && !is_set_over) {
+  if (engine_->GetIsLastRockLaunched() && !is_set_over) {
     return;
   }
   // when the set is over
@@ -210,7 +210,7 @@ void MyApp::mouseDown(cinder::app::MouseEvent event) {
   // users placement
   if (is_using_mouse && !engine_->GetIsYPointSelected() && !is_start_screen) {
     // if the current rock went out of bounds or they are all stable at their positions.
-    if (currentRock == nullptr || engine_->AllRocksAreSlowed()) {
+    if (currentRock == nullptr || engine_->AreAllRocksAreSlowed()) {
       if(event.getY() > 275 && event.getY() < 550){
         engine_->SetYPoint(event.getY());
         engine_->SetIsYPointSelected(true);
@@ -278,7 +278,7 @@ void MyApp::UpdateAttributes() {
 
 void MyApp::DrawAttributes() {
   // not showing anything if the last rock is launched
-  if (engine_->IsLastRockLaunched()) {return;}
+  if (engine_->GetIsLastRockLaunched()) {return;}
 
   if (is_using_bot && !engine_->GetIsRedTurn()) {return;}
 
